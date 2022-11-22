@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "827229036452",
+    "project_id": "buscardapp-af050",
+    "storage_bucket": "buscardapp-af050.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827229036452:android:7fa14eb7e73eca9e2c6b31",
+        "android_client_info": {
+          "package_name": "com.example.cardapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "827229036452-atu3c5ma4a48tfqb7k3dqmnpo3bbrrm0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlLb2FglO_dn0czOFenGYOuYHb2G9zH_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "827229036452-atu3c5ma4a48tfqb7k3dqmnpo3bbrrm0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "827229036452-5jj6v9gi8e6edkqq7c15meu7nkd35lke.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.instagram"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827229036452:android:df6e36c794c67fcd2c6b31",
+        "android_client_info": {
+          "package_name": "com.example.instagram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "827229036452-atu3c5ma4a48tfqb7k3dqmnpo3bbrrm0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlLb2FglO_dn0czOFenGYOuYHb2G9zH_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "827229036452-atu3c5ma4a48tfqb7k3dqmnpo3bbrrm0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "827229036452-5jj6v9gi8e6edkqq7c15meu7nkd35lke.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.instagram"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
