@@ -1,22 +1,20 @@
 import 'package:cardapp/screen/searchIdPage.dart';
-import 'package:cardapp/screen/signupPage.dart'; 
+import 'package:cardapp/screen/signupPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
-
-import '../model/user.dart';
-import '../utility/firebase_ Authentication.dart';
-import '../utility/function.dart';
+import '../usecase/signin.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
 
+import 'mainPage.dart';
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
   // Optional clientId
   // clientId: '479882132969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
   scopes: <String>[
     'email',
-    'https://www.googleapis.com/auth/contacts.readonly',
+    'https://www.googleapis.com/auth/contacts.readonly', // 반환값 확인
   ],
 );
 
@@ -108,10 +106,29 @@ class signinPage_View extends State<signinPage> {
                     ),
                     onPressed: isButtonActive
                         ? () async {
-                      String email = _editColEmail.text.trim();
-                      String password = _editColPassword.text.trim();
-                      await Authentication().signIn(context, email, password);
-                            }
+                            String email = _editColEmail.text.trim();
+                            String password = _editColPassword.text.trim();
+                            await signIn(email, password).then(
+                              (value) {
+                                value as Map;
+                                if (value["result"] == true) {
+
+                                  var userinfo = value["docid"] as UserCredential;
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute<void>(
+                                      builder: (BuildContext context) =>
+                                          mainPage(
+                                        email: userinfo.credential!.providerId,
+                                      ),
+                                    ),
+                                  );
+                                } else if (value["result"] == false) {
+                                  String error = value["error"];
+                                  errorDialog(context, error);
+                                }
+                              },
+                            );
+                          }
                         : null,
                     label: Text('이메일로 로그인'),
                   ),
@@ -243,15 +260,66 @@ class signinPage_View extends State<signinPage> {
       helperText: helperText,
     );
   }
-  bool CheckSignin(
-      bool checkEmail,
-      bool checkPassword
-      ) {
-        bool rtnValue = false;
-  if(checkEmail && checkPassword ) {
+
+  bool CheckSignin(bool checkEmail, bool checkPassword) {
+    bool rtnValue = false;
+    if (checkEmail && checkPassword) {
       rtnValue = true;
       return rtnValue;
     }
     return rtnValue;
   }
+}
+
+void errorDialog(BuildContext context, String value) async {
+  return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("에러"),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('${value}'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      });
+}
+
+void signUpDialog(BuildContext context, String value, String email) async {
+  return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('${value}'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  child: const Text('확인'),
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute<void>(
+                      builder: (BuildContext context) => mainPage(
+                        email: email,
+                      ),
+                    ));
+                  })
+            ]);
+      });
 }

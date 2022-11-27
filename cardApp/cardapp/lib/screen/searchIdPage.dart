@@ -1,10 +1,8 @@
 import 'package:cardapp/screen/searchPwPage.dart';
-import 'package:cardapp/screen/signinPage.dart';
-import 'package:cardapp/screen/signupPage.dart';
-import 'package:cardapp/utility/firebase_Store_User.dart'; 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import '../utility/function.dart';
+import '../usecase/searchEmail.dart';
+
 
 class searchIdPage extends StatefulWidget {
   const searchIdPage({Key? key}) : super(key: key);
@@ -17,7 +15,7 @@ final storageRef = FirebaseStorage.instance.ref();
 class searchIdPage_View extends State<searchIdPage> {
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController _editColPhoneNum, _editColPassword;
+  late TextEditingController _editColEmailNum, _editColPassword;
 
   FocusNode _phoneFocus = new FocusNode();
 
@@ -25,7 +23,7 @@ class searchIdPage_View extends State<searchIdPage> {
   void initState() {
     super.initState();
     // 생성자로 만드는 초기화 패턴
-    _editColPhoneNum = TextEditingController();
+    _editColEmailNum = TextEditingController();
   }
 
   @override
@@ -57,9 +55,9 @@ class searchIdPage_View extends State<searchIdPage> {
                     SizedBox(
                       child: ElevatedButton(
                         onPressed: () {
-                          String phoneNum = _editColPhoneNum.text.trim();
-                          FireStoreApp_User()
-                              .searchUserPhoneNum(context, phoneNum);
+                          String email = _editColEmailNum.text.trim();
+
+                          searchUserEmail(email);
                         },
                         child: Text('이메일 찾기'),
                       ),
@@ -88,7 +86,7 @@ class searchIdPage_View extends State<searchIdPage> {
               SizedBox(
                 child: ElevatedButton(
                   onPressed: () {
-                    function().popbeforePage(context);
+                    popbeforePage(context);
                   },
                   child: Text('뒤로 가기'),
                 ),
@@ -107,23 +105,24 @@ class searchIdPage_View extends State<searchIdPage> {
             Padding(
                 padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: TextFormField(
-                  controller: _editColPhoneNum,
+                  controller: _editColEmailNum,
                   focusNode: _phoneFocus,
-                  decoration: _textFormDecoration('핸드폰 번호'),
+                  decoration: _textFormDecoration('이메일'),
                   onSaved: (value) {
                     setState(() {
-                      _editColPhoneNum.text = value as String;
+                      _editColEmailNum.text = value as String;
                     });
                   },
                   validator: (value) {
-                    RegExp isValue = RegExp(r'^010-?([0-9]{4})-?([0-9]{4})$');
+                    RegExp isValue = RegExp(
+                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
                     if (value!.isEmpty) {
-                      return "핸드폰 번호가 비어있습니다.";
+                      return "이메일이 비어있습니다.";
                     }
                     if (isValue.hasMatch(value)) {
                       return null;
                     } else {
-                      return "핸드폰 번호를 정확히 입력해주세요.";
+                      return "이메을을 정확히 입력해주세요.";
                     }
                   },
                   autovalidateMode: AutovalidateMode.always,
@@ -144,4 +143,8 @@ class searchIdPage_View extends State<searchIdPage> {
       helperText: helperText,
     );
   }
+}
+
+void popbeforePage(final context) {
+  Navigator.pop(context);
 }

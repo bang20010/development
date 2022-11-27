@@ -1,14 +1,18 @@
-import 'package:cardapp/screen/mainPage.dart'; 
+import 'package:cardapp/usecase/getCurrentSecond.dart';
+import 'package:cardapp/usecase/getCurrentTDate.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
-import '../utility/firebase_Store.dart';
-import '../utility/function.dart';
-import 'dart:io'; 
+import '../usecase/addCard.dart';
+import 'dart:io';
+
+import '../usecase/checkAddCardValue.dart';
+import '../usecase/rtnDocument.dart';
 
 class addCard extends StatefulWidget {
-  const addCard({Key? key, required String this.filename, required String this.email})
+  const addCard(
+      {Key? key, required String this.filename, required String this.email})
       : super(key: key);
   final String filename;
   final String email;
@@ -175,17 +179,14 @@ class addCard_View extends State<addCard> {
                       String address = _editColAddress.text.trim();
                       String companyCallNum =
                           _editColCompanyCallNum.text.trim();
-                      String createDateEndSecond =
-                          function().getNowTimeEndSecond();
+                      String createDateEndSecond = getCurrentSecond();
                       String path = filename;
                       String url = "";
-                      String createEndDate = function().getNowTimeEndDate();
-                      String document = function()
-                          .rtnDocument(companyName, name, position)
-                          .trim();
+                      String createEndDate = getCurrentDate();
+                      String document =
+                          rtnDocument(companyName, name, position).trim();
 
-                      await FireStoreApp()
-                          .addCardData(
+                      await addCardData(
                               context,
                               User,
                               path,
@@ -200,10 +201,18 @@ class addCard_View extends State<addCard> {
                               createEndDate,
                               createDateEndSecond,
                               document)
-                          .then((value) => Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                  builder: (BuildContext context) =>
-                                      mainPage(email: User))));
+                          .then(
+                        (value) {
+                          value as Map;
+                          if (value["result"] == true) {
+                            Navigator.of(context).pop();
+                          } else if (value["result"] == false) {
+                            String error = value["error"];
+                            errorDialog(context, error);
+                          }
+                          ;
+                        },
+                      );
                     }
                   : null,
               icon: Icon(
@@ -218,7 +227,7 @@ class addCard_View extends State<addCard> {
             child: ElevatedButton.icon(
               icon: Icon(Icons.arrow_back_ios_new_outlined),
               onPressed: () {
-                function().popAddCard(context, filename);
+                popAddCard(context, filename);
               },
               label: Text('뒤로가기'),
             ),
@@ -460,7 +469,7 @@ class addCard_View extends State<addCard> {
                     if (isValue.hasMatch(value)) {
                       checkAddress = true;
 
-                      if (function().CheckAddCardValue(
+                      if (CheckAddCardValue(
                           checkCompanyName,
                           checkPosition,
                           checkPhoneNum,
@@ -529,4 +538,35 @@ class addCard_View extends State<addCard> {
       helperText: helperText,
     );
   }
+}
+
+void errorDialog(BuildContext context, String value) async {
+  return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("에러"),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('${value}'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      });
+}
+
+void popAddCard(final context, String filename) {
+  filename = "";
+  Navigator.pop(context);
 }

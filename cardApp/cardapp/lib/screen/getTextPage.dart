@@ -1,10 +1,12 @@
-import 'dart:io'; 
-import './mainPage.dart';
+import 'package:cardapp/usecase/getCurrentSecond.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
-import 'package:cardapp/utility/firebase_Store.dart';
 import 'package:flutter/material.dart';
-import '../utility/function.dart';
+import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
+import '../usecase/addCard.dart';
+import 'dart:io';
+
+import '../usecase/rtnDocument.dart';
 
 class getTextPage extends StatefulWidget {
   getTextPage({Key? key, required this.user}) : super(key: key);
@@ -65,12 +67,6 @@ class getTextPage_View extends State<getTextPage> {
 
   @override
   void initState() {
-    if (mainPage_View.checkImage) {
-      runFilePiker(); // 빌드전 바로 메서드를 불러오기 때문에 에러가 발생
-    } else {
-      runCameraPiker();
-    }
-
     super.initState();
 
     //fetch data from API
@@ -157,13 +153,13 @@ class getTextPage_View extends State<getTextPage> {
                 String homePage = _editColEmail.text.trim();
                 String address = _editColAddress.text.trim();
                 String companyCallNum = _editColCompanyCallNum.text.trim();
-                String createDateEndSecond = function().getNowTimeEndSecond();
+                String createDateEndSecond = getCurrentSecond();
                 String image = path;
                 String url = "";
-                String createEndDate = function().getNowTimeEndDate();
+                String createEndDate = getCurrentSecond();
                 String document =
-                    function().rtnDocument(companyName, name, position).trim();
-                await FireStoreApp().addCardData(
+                    rtnDocument(companyName, name, position).trim();
+                await addCardData(
                     context,
                     user,
                     path,
@@ -191,7 +187,7 @@ class getTextPage_View extends State<getTextPage> {
             child: ElevatedButton.icon(
               icon: Icon(Icons.arrow_back_ios_new_outlined),
               onPressed: () {
-                function().popAddCard(context, path);
+                popAddCard(context, path);
               },
               label: Text('뒤로가기'),
             ),
@@ -482,4 +478,9 @@ class getTextPage_View extends State<getTextPage> {
       helperText: helperText,
     );
   }
+}
+
+void popAddCard(final context, String filename) {
+  filename = "";
+  Navigator.pop(context);
 }

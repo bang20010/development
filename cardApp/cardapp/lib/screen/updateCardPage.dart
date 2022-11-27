@@ -1,12 +1,19 @@
-import 'package:cardapp/utility/firebase_Store.dart'; 
+import 'package:cardapp/usecase/getCurrentSecond.dart';
+import 'package:cardapp/usecase/getCurrentTDate.dart';
+import 'package:cardapp/utility/firebase_Store.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import '../utility/function.dart';
+import 'package:image_picker/image_picker.dart';
+import '../usecase/checkAddCardValue.dart';
+import '../usecase/updateCard.dart';
 import 'dart:io';
 
 class updateCard extends StatefulWidget {
   const updateCard(
-      {Key? key, required this.filename, required this.documentName, required this.User})
+      {Key? key,
+      required this.filename,
+      required this.documentName,
+      required this.User})
       : super(key: key);
   final String filename;
   final String documentName;
@@ -17,7 +24,7 @@ class updateCard extends StatefulWidget {
 
 class updateCard_View extends State<updateCard> {
   final _formKey = GlobalKey<FormState>();
-
+  String localImge = "";
   late bool isButtonActive;
 
   final storageRef = FirebaseStorage.instance.ref();
@@ -30,6 +37,8 @@ class updateCard_View extends State<updateCard> {
   bool checkEmail = false;
   bool checkAddress = false;
   bool checkCompanyNum = false;
+
+  bool isURLpic = true;
 
   late TextEditingController _editColName,
       _editColCompanyName,
@@ -99,7 +108,20 @@ class updateCard_View extends State<updateCard> {
                         BoxDecoration(borderRadius: BorderRadius.circular(50)),
                     height: media_querysize.height / 4,
                     width: media_querysize.width - 40,
-                    child: Image.file(File(filename), fit: BoxFit.cover),
+                    child: GestureDetector(
+                        onTap: () async {
+                          await ImagePicker()
+                              .getImage(source: ImageSource.gallery)
+                              .then(
+                                  (pickedFile) => localImge = pickedFile!.path);
+                          isURLpic = false;
+                        },
+                        child: isURLpic
+                            ? Image.file(
+                                File(localImge),
+                                fit: BoxFit.cover,
+                              )
+                            : Image.network(filename)),
                   ),
                   _showNameInput(),
                   _showCompanyNameInput(),
@@ -131,14 +153,13 @@ class updateCard_View extends State<updateCard> {
                       String companyCallNum =
                           _editColCompanyCallNum.text.trim();
                       String createDateEndSecond =
-                          function().getNowTimeEndSecond().trim();
+                          getCurrentSecond().trim();
                       String path = filename;
                       String url = "";
-
-                      String createEndDate = function().getNowTimeEndDate();
+                      String createEndDate = getCurrentDate().trim();
                       String document = getDocumentName;
-
-                      await FireStoreApp().updateCardData(
+                    if(isURLpic){
+                      await updateCardData(
                           context,
                           User,
                           path,
@@ -152,8 +173,28 @@ class updateCard_View extends State<updateCard> {
                           companyCallNum,
                           createEndDate,
                           createDateEndSecond,
-                          document);
-                    }
+                          document,
+                          isURLpic);
+                          }
+                      else if(!isURLpic){
+                            await updateCardData(
+                          context,
+                          User,
+                          localImge,
+                          name,
+                          companyName,
+                          position,
+                          phoneNum,
+                          email,
+                          homePage,
+                          address,
+                          companyCallNum,
+                          createEndDate,
+                          createDateEndSecond,
+                          document,
+                          isURLpic);
+                          }
+                      }
                   : null,
               icon: Icon(
                 // <-- Icon
@@ -167,7 +208,7 @@ class updateCard_View extends State<updateCard> {
             child: ElevatedButton.icon(
               icon: Icon(Icons.arrow_back_ios_new_outlined),
               onPressed: () {
-                function().popAddCard(context, filename);
+                popAddCard(context, filename);
               },
               label: Text('뒤로가기'),
             ),
@@ -177,6 +218,7 @@ class updateCard_View extends State<updateCard> {
     );
     throw UnimplementedError();
   }
+
   Widget _showEmailInput() {
     return Padding(
         padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -408,7 +450,7 @@ class updateCard_View extends State<updateCard> {
                     if (isValue.hasMatch(value)) {
                       checkAddress = true;
 
-                      if (function().CheckAddCardValue(
+                      if (CheckAddCardValue(
                           checkCompanyName,
                           checkPosition,
                           checkPhoneNum,
@@ -478,3 +520,7 @@ class updateCard_View extends State<updateCard> {
     );
   }
 }
+  void popAddCard(final context, String filename) {
+    filename = "";
+    Navigator.pop(context);
+  }

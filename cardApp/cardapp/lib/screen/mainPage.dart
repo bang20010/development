@@ -1,12 +1,14 @@
 import 'package:cardapp/screen/getTextPage.dart';
 import 'package:cardapp/screen/signinPage.dart';
-import 'package:cardapp/utility/function.dart';
+import 'package:cardapp/screen/updateCardPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import '../usecase/signOut.dart';
 import '../utility/firebase_ Authentication.dart';
 import '../utility/firebase_Store.dart';
+import '../usecase/removeCard.dart';
 import 'addCardPage.dart';
 
 class mainPage extends StatefulWidget {
@@ -28,14 +30,14 @@ class mainPage_View extends State<mainPage> {
         .getImage(source: ImageSource.gallery)
         .then((pickedFile) => path = pickedFile!.path);
     if (path != "") {
-      Navigator.of(context)
-          .push(MaterialPageRoute<void>(
-            builder: (BuildContext context) => addCard(
-              filename: path,
-              email: User,
-            ),
-          ))
-          .then((value) => null);
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (BuildContext context) => addCard(
+          filename: path,
+          email: User,
+        ),
+      ));
+    } else {
+      Navigator.pop(context);
     }
   }
 
@@ -76,7 +78,8 @@ class mainPage_View extends State<mainPage> {
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return  Center(child : CircularProgressIndicator(
+              return Center(
+                  child: CircularProgressIndicator(
                 strokeWidth: 10,
               ));
             } else if (snapshot.hasData) {
@@ -140,22 +143,33 @@ class mainPage_View extends State<mainPage> {
                                                 onPressed: () async {
                                                   String getDocumentName =
                                                       snap[index]["document"];
-                                                  await FireStoreApp()
-                                                      .getUpdateCard(
-                                                          User,
-                                                          getDocumentName,
-                                                          context);
+                                                  await Navigator.of(context)
+                                                      .push(MaterialPageRoute<
+                                                          void>(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        updateCard(
+                                                            filename:
+                                                                snap[index]
+                                                                    ["url"],
+                                                            documentName:
+                                                                getDocumentName,
+                                                            User: User),
+                                                  ));
+                                                  // FireStoreApp()
+                                                  //     .getUpdateCard(
+                                                  //         User,
+                                                  //         getDocumentName,
+                                                  //         context);
                                                 },
                                                 child: Text("수정 하기")),
                                             TextButton(
                                                 onPressed: () async {
                                                   String getDocumentName =
                                                       snap[index]["document"];
-                                                  function().addDialog(
+                                                  addDialog(
                                                       context, "명함을 삭제하시겠습니까?");
-                                                  await FireStoreApp()
-                                                      .deleteCard(context, User,
-                                                          getDocumentName);
+                                                  await deleteCard(User,getDocumentName);
                                                 },
                                                 child: Text("삭제 하기"))
                                           ],
@@ -196,13 +210,14 @@ class mainPage_View extends State<mainPage> {
               return Center(child: Text("등록된 명함이 없습니다. 명함을 등록해주세요"));
             }
           }),
-      bottomNavigationBar:  
-      Container(
+      bottomNavigationBar: Container(
         child:
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           SizedBox(
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(primary: Color.fromARGB(255, 232, 232, 232), onPrimary: Colors.black),
+                style: ElevatedButton.styleFrom(
+                    primary: Color.fromARGB(255, 232, 232, 232),
+                    onPrimary: Colors.black),
                 child: Text("이미지"),
                 onPressed: () {
                   checkImage = true;
@@ -213,7 +228,9 @@ class mainPage_View extends State<mainPage> {
           ),
           SizedBox(
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(primary: Color.fromARGB(255, 232, 232, 232), onPrimary: Colors.black),
+                style: ElevatedButton.styleFrom(
+                    primary: Color.fromARGB(255, 232, 232, 232),
+                    onPrimary: Colors.black),
                 child: Text("스캔"),
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute<void>(
@@ -223,7 +240,9 @@ class mainPage_View extends State<mainPage> {
           ),
           SizedBox(
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(primary: Color.fromARGB(255, 232, 232, 232), onPrimary: Colors.black),
+                style: ElevatedButton.styleFrom(
+                    primary: Color.fromARGB(255, 232, 232, 232),
+                    onPrimary: Colors.black),
                 child: Text("수동 등록"),
                 onPressed: () async {
                   runImagePiker(User);
@@ -266,14 +285,43 @@ class mainPage_View extends State<mainPage> {
           ),
           ListTile(
             title: Text('로그아웃'),
-            onTap: () => Authentication().signOut(context),
+            onTap: () => signOut(),
           ),
           ListTile(
             title: Text('뒤로가기'),
-            onTap: () => function().popbeforePage(context),
+            onTap: () => popbeforePage(context),
           ),
         ],
       ),
     );
   }
 }
+void addDialog(BuildContext context, String value) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('${value}.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void popbeforePage(final context) {
+    Navigator.pop(context);
+  }

@@ -1,10 +1,12 @@
 import 'package:cardapp/screen/searchPwPage.dart';
-import 'package:cardapp/screen/signinPage.dart'; 
+import 'package:cardapp/screen/signinPage.dart';
+import 'package:cardapp/usecase/getCurrentTDate.dart';
 import 'package:cardapp/utility/firebase_%20Authentication.dart';
 import 'package:cardapp/utility/firebase_Store_User.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import '../utility/function.dart';
+import '../usecase/signup.dart';
 
 class signupPage extends StatefulWidget {
   const signupPage({Key? key}) : super(key: key);
@@ -93,21 +95,21 @@ class signupPage_View extends State<signupPage> {
                     String password = _editColPassword.text.trim();
                     String isPassword = _editColIsPassword.text.trim();
                     String phoneNum = _editColPhoneNum.text.trim();
-                    String createDate = function().getNowTimeEndDate();
+                    String createDate = getCurrentDate().trim();
 
-                    await FireStoreApp_User()
-                        .addUserPhoneNum(context, phoneNum, email, createDate)
-                        .then((value) => {
-                              FireStoreApp_User().addUserData(context, phoneNum,
-                                  email, password, createDate),
-                              Authentication().signUp(context, email, password)
-                            })
-                        .then((value) => {
-                              Navigator.of(context)
-                                  .push(MaterialPageRoute<void>(
-                                builder: (BuildContext context) => signinPage(),
-                              ))
-                            });
+                    await signUp(email, password, phoneNum, createDate).then(
+                      (value) {
+                        value as Map;
+                        if (value["result"] == true) {
+                          signUpDialog(context,"회원가입을 완료했습니다");
+                          // var userinfo = value["docid"] as UserCredential;
+                        } else if (value["result"] == false) {
+                          String error = value["error"];
+                          errorDialog(context, error);
+                        }
+                        ;
+                      },
+                    );
                   },
                   child: Text("${title}"),
                 ),
@@ -116,7 +118,7 @@ class signupPage_View extends State<signupPage> {
               SizedBox(
                 child: ElevatedButton(
                   onPressed: () {
-                    function().popbeforePage(context);
+                    popbeforePage(context);
                   },
                   child: Text('뒤로 가기'),
                 ),
@@ -286,4 +288,60 @@ class signupPage_View extends State<signupPage> {
       helperText: helperText,
     );
   }
+
+  void errorDialog(BuildContext context, String value) async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("에러"),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('${value}'),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('확인'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  void signUpDialog(BuildContext context, String value) async {
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return AlertDialog(
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text('${value}'),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                    child: const Text('확인'),
+                    onPressed: () {
+                      Navigator.of(context)
+                        .push(
+                          MaterialPageRoute<void>(
+                              builder: (BuildContext context) => signinPage()),
+                        );
+                    })
+              ]);
+        });
+  }
 }
+  void popbeforePage(final context) {
+    Navigator.pop(context);
+  }
