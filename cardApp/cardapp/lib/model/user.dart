@@ -1,6 +1,4 @@
-import 'dart:convert'; 
-
-
+import 'dart:convert';
 
 List<User> busCardFromJson(String str) =>
     List<User>.from(json.decode(str).map((x) => User.fromJson(x)));
