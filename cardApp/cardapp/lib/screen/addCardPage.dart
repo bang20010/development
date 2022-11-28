@@ -1,5 +1,5 @@
 import 'package:cardapp/usecase/getCurrentSecond.dart';
-import 'package:cardapp/usecase/getCurrentTDate.dart';
+import 'package:cardapp/usecase/getCurrentDate.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +8,6 @@ import '../usecase/addCard.dart';
 import 'dart:io';
 
 import '../usecase/checkAddCardValue.dart';
-import '../usecase/rtnDocument.dart';
 
 class addCard extends StatefulWidget {
   const addCard(
@@ -570,3 +569,10 @@ void popAddCard(final context, String filename) {
   filename = "";
   Navigator.pop(context);
 }
+ String rtnDocument(String companyName, String name, String position) {
+    String document = "";
+    if (companyName.isNotEmpty && name.isNotEmpty && position.isNotEmpty) {
+      document = "${companyName}_ ${name}_ ${position}";
+    }
+    return document;
+  }
