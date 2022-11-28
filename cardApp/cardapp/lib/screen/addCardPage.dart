@@ -8,7 +8,6 @@ import '../usecase/addCard.dart';
 import 'dart:io';
 
 import '../usecase/checkAddCardValue.dart';
-import '../usecase/rtnDocument.dart';
 
 class addCard extends StatefulWidget {
   const addCard(
