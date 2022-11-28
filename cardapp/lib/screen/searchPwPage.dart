@@ -61,9 +61,15 @@ class searchPW_View extends State<searchPW> {
                             onPrimary: Colors.black),
                         onPressed: () async{
                           String email = _editColEmail.text;
-                          await SearchPassword(email).then((value) => {
-                            
-                          });
+                          await SearchPassword( email).then((value){
+                               value as Map;
+                                if (value["result"] == true) {
+                                  searchDialog(context,"해당 이메일로 메일을 보냈습니다");
+                                }else if (value["result"] == false) {
+                                  String error = value["error"];
+                                  errorDialog(context, error);
+                                }
+                    });
                         },
                         child: Text('비밀번호 찾기'),
                       ),
@@ -78,26 +84,7 @@ class searchPW_View extends State<searchPW> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
-              SizedBox(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      primary: Color.fromARGB(255, 232, 232, 232),
-                      onPrimary: Colors.black),
-                  onPressed: () async{
-                    String email = _editColEmail.text;
-                    await SearchPassword( email).then((value){
-                               value as Map;
-                                if (value["result"] == true) {
-                                  searchDialog(context,"해당 이메일로 메일을 보냈습니다");
-                                }else if (value["result"] == false) {
-                                  String error = value["error"];
-                                  errorDialog(context, error);
-                                }
-                    });
-                  },
-                  child: Text('비밀번호 찾기'),
-                ),
-              ),
+           
               SizedBox(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(

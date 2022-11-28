@@ -1,6 +1,6 @@
 import 'package:cardapp/screen/searchPwPage.dart';
 import 'package:cardapp/screen/signinPage.dart';
-import 'package:cardapp/usecase/getCurrentTDate.dart';
+import 'package:cardapp/usecase/getCurrentDate.dart';
 import 'package:cardapp/utility/firebase_%20Authentication.dart';
 import 'package:cardapp/utility/firebase_Store_User.dart';
 import 'package:firebase_auth/firebase_auth.dart';
