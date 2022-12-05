@@ -663,6 +663,7 @@ void popAddCard(final context, String filename) {
   filename = "";
   Navigator.pop(context);
 }
+<<<<<<< HEAD
 
 // void runImagePiker(BuildContext context, String path) async {
 //   // android && ios only
@@ -681,3 +682,12 @@ String rtnDocument(String companyName, String name, String position) {
   }
   return document;
 }
+=======
+ String rtnDocument(String companyName, String name, String position) {
+    String document = "";
+    if (companyName.isNotEmpty && name.isNotEmpty && position.isNotEmpty) {
+      document = "${companyName}_ ${name}_ ${position}";
+    }
+    return document;
+  }
+>>>>>>> origin/main
