@@ -22,13 +22,11 @@ Future updateCardData(
     String createEndDate,
     String createDateEndSecond,
     String document,
-    bool isURLpic
     ) async {
   if (document != "") {
     if (homePage.isEmpty) {
       homePage = "없음";
     }
-    if(!isURLpic){
     File file = File(path);
     final metadata = SettableMetadata(contentType: "image/jpeg");
     // firebase에 사진 저장
@@ -41,7 +39,7 @@ Future updateCardData(
         .getDownloadURL();
     }
       return await FireStoreApp()
-          .getCollection()
+          .getCardCollection()
            .doc(User)
             .collection("CardList")
             .doc(document)
@@ -55,17 +53,16 @@ Future updateCardData(
                     companyCallNum: companyCallNum,
                     createDate: createDateEndSecond,
                     homePage: homePage,
-                    url: path,
-                    document: document)
-                .toJson())
-          .then(
-        (doc) {
-          return {"result": true, "docid": doc};
-        },
-        onError: (e) {
-          return {"result": false, "error": e};
-        },
-      );
+                    url: path)
+                .toJson());
+      //     .then(
+      //   (doc) {
+           
+      //   },
+      //   onError: (e) {
+      //     errorDialog(context, "${e} 에러가 발생했습니다.");
+      //   },
+      // );
     }
-  }
+  
 

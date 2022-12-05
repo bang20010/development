@@ -22,7 +22,7 @@ class mainApp extends StatefulWidget {
 class _MainViewState extends State<mainApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: signinPage());
-    // return MaterialApp(home: signinPage());
+  return MaterialApp(home: signinPage());
+   // return MaterialApp(home: mainPage( email: "test2001@gmail"));
   }
 }

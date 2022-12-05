@@ -1,6 +1,7 @@
 import 'package:cardapp/usecase/getCurrentSecond.dart';
 import 'package:cardapp/usecase/getCurrentTDate.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
@@ -8,13 +9,14 @@ import '../usecase/addCard.dart';
 import 'dart:io';
 
 import '../usecase/checkAddCardValue.dart';
-import '../usecase/rtnDocument.dart';
 
 class addCard extends StatefulWidget {
   const addCard(
-      {Key? key, required String this.filename, required String this.email})
+      {Key? key,
+      // required this.filename,
+      required String this.email})
       : super(key: key);
-  final String filename;
+  // final String filename;
   final String email;
   @override
   addCard_View createState() => addCard_View();
@@ -23,11 +25,10 @@ class addCard extends StatefulWidget {
 final storageRef = FirebaseStorage.instance.ref();
 
 class addCard_View extends State<addCard> {
-  String _ocrText = "";
-  static var selectList = ["eng", "kor"];
-  late bool bload;
+  bool isLoading = true;
   String path = "";
-
+  // String _ocrText = "";
+  Map<String, String> ocrTextMap = {"name": "", "email": "", "phonenumber": ""};
   bool checkName = false;
   bool checkCompanyName = false;
   bool checkPosition = false;
@@ -38,23 +39,6 @@ class addCard_View extends State<addCard> {
   bool checkCompanyNum = false;
 
   final _formKey = GlobalKey<FormState>();
-
-  void runFilePiker() async {
-    // android && ios only
-    final pickedFile =
-        await ImagePicker().getImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      _ocr(pickedFile.path);
-    }
-  }
-
-  void runCameraPiker() async {
-    // android && ios only
-    final pickedFile = await ImagePicker().getImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      _ocr(pickedFile.path);
-    }
-  }
 
   late TextEditingController _editColName,
       _editColCompanyName,
@@ -75,7 +59,79 @@ class addCard_View extends State<addCard> {
   FocusNode _addressFocus = new FocusNode();
   FocusNode _homepageFocus = new FocusNode();
 
-  late bool isButtonActive;
+  bool isImage = false;
+  bool isButtonActive = false;
+
+  void runCameraPiker() async {
+    // android && ios only
+    var pickedFile = await ImagePicker()
+        .getImage(source: ImageSource.camera)
+        .then((pickedFile) {
+      if (pickedFile != null) {
+        path = pickedFile.path;
+      }
+    }, onError: (e) {
+      errorDialog(context, "${e}에러가 발생했습니다.");
+    });
+    if (pickedFile != null) {
+      path = pickedFile.path;
+      _ocr(pickedFile.path);
+      isImage = true;
+    }
+  }
+
+  void runGalleryPiker() async {
+    var pickedFile = await ImagePicker()
+        .getImage(source: ImageSource.gallery)
+        .then((pickedFile) {
+      if (pickedFile != null) {
+        _ocr(pickedFile.path);
+        setState(() {
+          path = pickedFile!.path;
+          isImage = true;
+        });
+      }
+    }, onError: (e) {
+      errorDialog(context, "${e}에러가 발생했습니다.");
+    });
+  }
+
+  void getOcrText(
+      String _ocrText, String pattern, TextEditingController controller) async {
+    RegExp isValue = RegExp(pattern);
+    var match = isValue.firstMatch(_ocrText);
+    String? name = match?.group(0);
+    if (name != null) {
+      controller.text = name!;
+    }
+  }
+
+  void _ocr(url) async {
+    var selectList = ["eng", "kor"];
+    var langs = selectList.join("+");
+    // 위젯을 처음부터 로드
+    setState(() {});
+    isLoading = false;
+    String _ocrText =
+        await FlutterTesseractOcr.extractText(url, language: langs, args: {
+      "preserve_interword_spaces": "1",
+    });
+    getOcrText(_ocrText, "010-?([0-9]{4})-?([0-9]{4})", _editColPhoneNum);
+    getOcrText(
+        _ocrText,
+        "[김이박최정강조윤장임한오서신권황안송전홍유고문양손배조백허유남심노정하곽성차주우구신임전민유류나진지엄채원천방공강현함변염양변염양변여추]{1}?[가-힣]{2,4}",
+        _editColName);
+    getOcrText(
+        _ocrText,
+        "[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}",
+        _editColEmail);
+    getOcrText(
+        _ocrText,
+        "[사원]|[주임]|[대리]|[과장]|[차장]|[부장]|[이사]|[상무]|[부사장]|[사장]|[대표]|[박사]|[연구원]|[프리랜서][실장]",
+        _editColPosition);
+    isLoading = true;
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -93,149 +149,186 @@ class addCard_View extends State<addCard> {
     _editColAddress = TextEditingController();
   }
 
-  void _ocr(url) async {
-    if (selectList.length <= 0) {
-      print("Please select language");
-      return;
-    }
-    path = url;
-    var langs = selectList.join("+");
-
-    bload = true;
-    // 위젯을 처음부터 로드
-    setState(() {});
-    _ocrText =
-        await FlutterTesseractOcr.extractText(url, language: langs, args: {
-      "preserve_interword_spaces": "1",
-    });
-    bload = false;
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     var media_querysize = MediaQuery.of(context).size;
-    String filename = widget.filename;
+    // String filename = widget.filename;
     String User = widget.email;
     String title = "명함 생성";
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text("${title}",
-            style: TextStyle(
-              color: Colors.black,
-            ),
-            textAlign: TextAlign.center),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-          width: media_querysize.width,
-          height: media_querysize.height + 250,
-          child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  Container(
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(50)),
-                    height: media_querysize.height / 4,
-                    width: media_querysize.width - 40,
-                    child: Image.file(File(filename), fit: BoxFit.cover),
+    return isLoading
+        ? Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              title: Text("${title}",
+                  style: TextStyle(
+                    color: Colors.black,
                   ),
-                  _showNameInput(),
-                  _showCompanyNameInput(),
-                  _showCompanyNumInput(),
-                  _showPhoneNumInput(),
-                  _showEmailInput(),
-                  _showPositionInput(),
-                  _showAddressInput(),
-                  _showHomePageInput(),
-                ],
-              )),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          SizedBox(
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                onSurface: Colors.blue,
+                  textAlign: TextAlign.center),
+              centerTitle: true,
+            ),
+            body: SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
+                width: media_querysize.width,
+                height: media_querysize.height + 250,
+                child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              border: Border.all(width: 1, color: Colors.grey)),
+                          height: media_querysize.height / 4,
+                          width: media_querysize.width - 40,
+                          child: isImage
+                              ? GestureDetector(
+                                  onTap: () {
+                                    runGalleryPiker();
+                                  },
+                                  child: Image.file(
+                                    File(path),
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Center(
+                                  child: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: 45,
+                                    ),
+                                    Text(
+                                      "명함사진을 추가해주세요",
+                                      style: TextStyle(
+                                          color: Colors.red, fontSize: 18),
+                                    ),
+                                    TextButton.icon(
+                                        label: Text("갤러리에서 스캔하기"),
+                                        icon: Icon(Icons.add, size: 18),
+                                        onPressed: () async {
+                                          runGalleryPiker();
+                                          if (path.isNotEmpty) {
+                                            isImage = true;
+                                          } else {
+                                            isImage = false;
+                                          }
+                                        }),
+                                    TextButton.icon(
+                                        label: Text("카메라로  스캔하기"),
+                                        icon: Icon(Icons.camera_alt, size: 18),
+                                        onPressed: () {}),
+                                  ],
+                                )),
+                        ),
+                        _showNameInput(),
+                        _showCompanyNameInput(),
+                        _showCompanyNumInput(),
+                        _showPhoneNumInput(),
+                        _showEmailInput(),
+                        _showPositionInput(),
+                        _showAddressInput(),
+                        _showHomePageInput(),
+                      ],
+                    )),
               ),
-              onPressed: isButtonActive
-                  ? () async {
-                      bool checkCard = false;
-                      String name = _editColName.text.trim();
-                      String companyName = _editColCompanyName.text.trim();
-                      String position = _editColPosition.text.trim();
-                      String phoneNum = _editColPhoneNum.text.trim();
-                      String email = _editColPhoneNum.text.trim();
-                      String homePage = _editColEmail.text.trim();
-                      String address = _editColAddress.text.trim();
-                      String companyCallNum =
-                          _editColCompanyCallNum.text.trim();
-                      String createDateEndSecond = getCurrentSecond();
-                      String path = filename;
-                      String url = "";
-                      String createEndDate = getCurrentDate();
-                      String document =
-                          rtnDocument(companyName, name, position).trim();
+            ),
+            bottomNavigationBar: Container(
+              margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          onSurface: Colors.blue,
+                        ),
+                        onPressed: isButtonActive
+                            ? () async {
+                                bool checkCard = false;
+                                String name = _editColName.text.trim();
+                                String companyName =
+                                    _editColCompanyName.text.trim();
+                                String position = _editColPosition.text.trim();
+                                String phoneNum = _editColPhoneNum.text.trim();
+                                String email = _editColPhoneNum.text.trim();
+                                String homePage = _editColEmail.text.trim();
+                                String address = _editColAddress.text.trim();
+                                String companyCallNum =
+                                    _editColCompanyCallNum.text.trim();
+                                String createDateEndSecond = getCurrentSecond();
+                                String path = "";
+                                String url = "";
+                                String createEndDate = getCurrentDate();
+                                String document =
+                                    rtnDocument(name, position, phoneNum)
+                                        .trim();
 
-                      await addCardData(
-                              context,
-                              User,
-                              path,
-                              name,
-                              companyName,
-                              position,
-                              phoneNum,
-                              email,
-                              homePage,
-                              address,
-                              companyCallNum,
-                              createEndDate,
-                              createDateEndSecond,
-                              document)
-                          .then(
-                        (value) {
-                          value as Map;
-                          if (value["result"] == true) {
-                            Navigator.of(context).pop();
-                          } else if (value["result"] == false) {
-                            String error = value["error"];
-                            errorDialog(context, error);
-                          }
-                          ;
+                                await addCardData(
+                                        context,
+                                        User,
+                                        path,
+                                        name,
+                                        companyName,
+                                        position,
+                                        phoneNum,
+                                        email,
+                                        homePage,
+                                        address,
+                                        companyCallNum,
+                                        createEndDate,
+                                        createDateEndSecond,
+                                        document)
+                                    .then((value) {}, onError: (e) {
+                                  errorDialog(context, "${e} 에러가 발생했습니다");
+                                });
+                                //     .then(
+                                //   (value) {
+                                //     value as Map;
+                                //     if (value["result"] == true) {
+                                //       Navigator.of(context).pop();
+                                //     } else if (value["result"] == false) {
+                                //       String error = value["error"];
+                                //       errorDialog(context, error);
+                                //     }
+                                //   },
+                                // );
+                              }
+                            : null,
+                        icon: Icon(
+                          // <-- Icon
+                          Icons.download,
+                          size: 24.0,
+                        ), // <-- Text
+                        label: Text("${title}"),
+                      ),
+                    ),
+                    SizedBox(
+                      child: ElevatedButton.icon(
+                        icon: Icon(Icons.arrow_back_ios_new_outlined),
+                        onPressed: () {
+                          popAddCard(context, "filename");
                         },
-                      );
-                    }
-                  : null,
-              icon: Icon(
-                // <-- Icon
-                Icons.download,
-                size: 24.0,
-              ), // <-- Text
-              label: Text("${title}"),
+                        label: Text('뒤로가기'),
+                      ),
+                    ),
+                  ]),
             ),
-          ),
-          SizedBox(
-            child: ElevatedButton.icon(
-              icon: Icon(Icons.arrow_back_ios_new_outlined),
-              onPressed: () {
-                popAddCard(context, filename);
-              },
-              label: Text('뒤로가기'),
+          )
+        : Scaffold(
+            body: Center(
+              child: Row(children: [
+                Text(
+                  "이미지를 스캔하는 중입니다.",
+                  style: TextStyle(color: Colors.blue, fontSize: 15),
+                ),
+                SpinKitCircle(
+                  size: 140,
+                  color: Colors.blue,
+                ),
+              ]),
             ),
-          ),
-        ]),
-      ),
-    );
-    throw UnimplementedError();
+          );
   }
 
   Widget _showEmailInput() {
@@ -569,4 +662,22 @@ void errorDialog(BuildContext context, String value) async {
 void popAddCard(final context, String filename) {
   filename = "";
   Navigator.pop(context);
+}
+
+// void runImagePiker(BuildContext context, String path) async {
+//   // android && ios only
+//   var pickedFile = await ImagePicker()
+//       .getImage(source: ImageSource.gallery)
+//       .then((pickedFile) {
+//     path = pickedFile!.path;
+//   }, onError: (e) {
+//     errorDialog(context, e);
+//   });
+// }
+String rtnDocument(String companyName, String name, String position) {
+  String document = "";
+  if (companyName.isNotEmpty && name.isNotEmpty && position.isNotEmpty) {
+    document = "${companyName}_ ${name}_ ${position}";
+  }
+  return document;
 }

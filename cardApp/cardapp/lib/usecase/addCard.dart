@@ -22,7 +22,7 @@ Future addCardData(
     String createEndDate,
     String createDateEndSecond,
     String document) async {
-  if (document != "") {
+  
     if (homePage.isEmpty) {
       homePage = "없음";
     }
@@ -39,7 +39,7 @@ Future addCardData(
 
     if (url.isNotEmpty) {
       return await FireStoreApp()
-          .getCollection()
+          .getCardCollection()
           .doc(User)
           .collection("CardList")
           .doc(document)
@@ -53,17 +53,15 @@ Future addCardData(
                   companyCallNum: companyCallNum,
                   createDate: createDateEndSecond,
                   homePage: homePage,
-                  url: url,
-                  document: document)
-              .toJson())
-          .then(
-        (doc) {
-          return {"result": true, "docid": doc};
-        },
-        onError: (e) {
-          return {"result": false, "error": e};
-        },
-      );
-    }
+                  url: url)
+              .toJson());
+      //     .then(
+      //   (doc) {
+      //     return {"result": true, "docid": doc};
+      //   },
+      //   onError: (e) {
+      //     return {"result": false, "error": e};
+      //   },
+      // );
   }
 }

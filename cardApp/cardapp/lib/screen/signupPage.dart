@@ -7,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import '../usecase/signup.dart';
+import 'package:encryptor/encryptor.dart';
+import 'package:flutter/foundation.dart';
 
 class signupPage extends StatefulWidget {
   const signupPage({Key? key}) : super(key: key);
@@ -97,19 +99,19 @@ class signupPage_View extends State<signupPage> {
                     String phoneNum = _editColPhoneNum.text.trim();
                     String createDate = getCurrentDate().trim();
 
-                    await signUp(email, password, phoneNum, createDate).then(
-                      (value) {
-                        value as Map;
-                        if (value["result"] == true) {
-                          signUpDialog(context,"회원가입을 완료했습니다");
-                          // var userinfo = value["docid"] as UserCredential;
-                        } else if (value["result"] == false) {
-                          String error = value["error"];
-                          errorDialog(context, error);
-                        }
-                        ;
-                      },
-                    );
+                    String key = 'buscard app password';
+                    String pwEncrypted = Encryptor.encrypt(key, password);
+
+                    await signUp(email, pwEncrypted, phoneNum, createDate).then(
+                        (value) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => signinPage(),
+                        ),
+                      );
+                    }, onError: (e) {
+                      errorDialog(context, "${e} 에러가 발생했습니다.");
+                    });
                   },
                   child: Text("${title}"),
                 ),
@@ -332,16 +334,16 @@ class signupPage_View extends State<signupPage> {
                 TextButton(
                     child: const Text('확인'),
                     onPressed: () {
-                      Navigator.of(context)
-                        .push(
-                          MaterialPageRoute<void>(
-                              builder: (BuildContext context) => signinPage()),
-                        );
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                            builder: (BuildContext context) => signinPage()),
+                      );
                     })
               ]);
         });
   }
 }
-  void popbeforePage(final context) {
-    Navigator.pop(context);
-  }
+
+void popbeforePage(final context) {
+  Navigator.pop(context);
+}

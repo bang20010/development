@@ -54,20 +54,7 @@ class searchPW_View extends State<searchPW> {
                 child: Column(
                   children: [
                     _showEmailInput(),
-                    SizedBox(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            primary: Color.fromARGB(255, 232, 232, 232),
-                            onPrimary: Colors.black),
-                        onPressed: () async{
-                          String email = _editColEmail.text;
-                          await SearchPassword(email).then((value) => {
-                            
-                          });
-                        },
-                        child: Text('비밀번호 찾기'),
-                      ),
-                    ),
+                    searchPwButton(_editColEmail),
                   ],
                 )),
           ),
@@ -229,3 +216,20 @@ void searchDialog(BuildContext context, String value) async {
   void popbeforePage(final context) {
     Navigator.pop(context);
   }
+  Widget searchPwButton(TextEditingController _editColEmail){
+   return  SizedBox(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            primary: Color.fromARGB(255, 232, 232, 232),
+                            onPrimary: Colors.black),
+                        onPressed: () async{
+                          String email = _editColEmail.text;
+                          await SearchPassword(email).then((value) => {
+                            
+                          });
+                        },
+                        child: Text('비밀번호 찾기'),
+                      ),
+                    );
+                    }
+  

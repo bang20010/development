@@ -9,26 +9,15 @@ Future signUp(
       String password,
       String phoneNum,
       String createDate) async {
-    await Authentication().getAuthentication().createUserWithEmailAndPassword(email: email, password: password)
-        .then(
-          (doc) {
-            addUserData(email,password,phoneNum,createDate);
-            return {
-            "result": true,
-            "docid": doc};},
-          onError: (e) {return {
-            "result" :false,
-            "error":e};},
-        );
-  }
-
+    await Authentication().getAuthentication().createUserWithEmailAndPassword(email: email, password: password);
+    }
   Future addUserData(
       String email,
       String password,
       String phoneNum,
       String createDate
       ) async {
-        return await FireStoreApp_User().getUserCollect().doc(email).collection("Data").doc(phoneNum).set(User(
+        return await FireStoreApp_User().getUserCollect().doc(phoneNum).set(User(
                 email: email,
                 phoneNum: phoneNum,
                 password: password,
@@ -37,3 +26,21 @@ Future signUp(
       onError: (e){return false;}
     );
     }
+    
+// Future signUp( 
+//       String email,
+//       String password,
+//       String phoneNum,
+//       String createDate) async {
+//     await Authentication().getAuthentication().createUserWithEmailAndPassword(email: email, password: password)
+//         .then(
+//           (doc) {
+//             addUserData(email,password,phoneNum,createDate);
+//             return {
+//             "result": true,
+//             "docid": doc};},
+//           onError: (e) {return {
+//             "result" :false,
+//             "error":e};},
+//         );
+//   }

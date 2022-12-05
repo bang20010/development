@@ -3,7 +3,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import '../usecase/searchEmail.dart';
 
-
 class searchIdPage extends StatefulWidget {
   const searchIdPage({Key? key}) : super(key: key);
   @override
@@ -55,9 +54,11 @@ class searchIdPage_View extends State<searchIdPage> {
                     SizedBox(
                       child: ElevatedButton(
                         onPressed: () {
-                          String email = _editColEmailNum.text.trim();
-
-                          searchUserEmail(email);
+                          String phnonenumber = _editColEmailNum.text.trim();
+                          searchUserEmail(phnonenumber).then((value) {},
+                              onError: (e) {
+                            errorDialog(context, "${e} 에러가 발생했습니다");
+                          });
                         },
                         child: Text('이메일 찾기'),
                       ),
@@ -107,22 +108,21 @@ class searchIdPage_View extends State<searchIdPage> {
                 child: TextFormField(
                   controller: _editColEmailNum,
                   focusNode: _phoneFocus,
-                  decoration: _textFormDecoration('이메일'),
+                  decoration: _textFormDecoration('핸드폰 번호'),
                   onSaved: (value) {
                     setState(() {
                       _editColEmailNum.text = value as String;
                     });
                   },
                   validator: (value) {
-                    RegExp isValue = RegExp(
-                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+                    RegExp isValue = RegExp("010-?([0-9]{4})-?([0-9]{4})");
                     if (value!.isEmpty) {
-                      return "이메일이 비어있습니다.";
+                      return "핸드폰 번호가 비어있습니다.";
                     }
                     if (isValue.hasMatch(value)) {
                       return null;
                     } else {
-                      return "이메을을 정확히 입력해주세요.";
+                      return "핸드폰 번호를 정확히 입력해주세요.";
                     }
                   },
                   autovalidateMode: AutovalidateMode.always,

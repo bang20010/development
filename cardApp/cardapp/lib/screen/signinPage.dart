@@ -4,8 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import '../usecase/signin.dart';
-
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:encryptor/encryptor.dart';
+import 'package:flutter/foundation.dart';
 
 import 'mainPage.dart';
 
@@ -39,6 +40,7 @@ class signinPage_View extends State<signinPage> {
   FocusNode _emailFocus = new FocusNode();
   FocusNode _passwordFocus = new FocusNode();
   late bool isButtonActive;
+
 
   @override
   void initState() {
@@ -110,23 +112,32 @@ class signinPage_View extends State<signinPage> {
                             String password = _editColPassword.text.trim();
                             await signIn(email, password).then(
                               (value) {
-                                value as Map;
-                                if (value["result"] == true) {
-
-                                  var userinfo = value["docid"] as UserCredential;
-                                  Navigator.of(context).push(
+                                // value as bool;
+                                // if (value == true) {
+                                        Navigator.of(context).push(
                                     MaterialPageRoute<void>(
                                       builder: (BuildContext context) =>
                                           mainPage(
-                                        email: userinfo.credential!.providerId,
+                                        email: email,
                                       ),
                                     ),
                                   );
-                                } else if (value["result"] == false) {
-                                  String error = value["error"];
-                                  errorDialog(context, error);
-                                }
-                              },
+                                  },
+                                  onError: (e){errorDialog(context, "${e} 에러가 발생했습니다.");}
+                              
+                                  // var userinfo = value["docid"] as UserCredential;
+                                  // Navigator.of(context).push(
+                                  //   MaterialPageRoute<void>(
+                                  //     builder: (BuildContext context) =>
+                                  //         mainPage(
+                                  //       email: userinfo.credential!.providerId,
+                                  //     ),
+                                  //   ),
+                                  // );
+                                // } else if (value == false) {
+                                //   errorDialog(context, "로그인에 실패했습니다.");
+                                // }
+                              
                             );
                           }
                         : null,

@@ -4,7 +4,7 @@ import '../utility/firebase_Store_User.dart';
 
 bool checkEmail( BuildContext context, String email) {
       bool checkID = true;    
-      FireStoreApp_User().getUserCollect()..get().then((snapshot) {
+      FireStoreApp_User().getUserCollect().get().then((snapshot) {
       snapshot.docs.forEach((doc){
         print(doc);
         if (doc.id == email) {

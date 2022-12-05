@@ -19,7 +19,6 @@ class busCard {
   String companyCallNum;
   String createDate;
   String url;
-  String document;
 
   busCard(
       {required this.name,
@@ -31,7 +30,6 @@ class busCard {
       required this.companyCallNum,
       required this.createDate,
       required this.url,
-      required this.document,
       this.homePage});
 
   factory busCard.fromJson(Map<String, dynamic> json) => busCard(
@@ -44,7 +42,6 @@ class busCard {
       companyCallNum: json["companyCallNum"],
       email: json["email"],
       createDate: json["createDate"],
-      document: json["document"],
       url: json["url"]);
 
   Map<String, dynamic> toJson() => {
@@ -56,8 +53,7 @@ class busCard {
         "address": address,
         "companyCallNum": companyCallNum,
         "createDate": createDate,
-        "url": url,
-        "document": document
+        "url": url
       };
   //flutter map 데이터 받아오기
 }
