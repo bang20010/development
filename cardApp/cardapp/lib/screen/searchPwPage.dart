@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../usecase/searchPassword.dart';
 import '../utility/firebase_ Authentication.dart';
 
-
 class searchPW extends StatefulWidget {
   const searchPW({Key? key}) : super(key: key);
   @override
@@ -44,75 +43,118 @@ class searchPW_View extends State<searchPW> {
               textAlign: TextAlign.center),
           centerTitle: true,
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-            width: media_querysize.width,
-            height: media_querysize.height + 250,
-            child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    _showEmailInput(),
-                    searchPwButton(_editColEmail),
-                  ],
-                )),
+        body: Center(
+          child: SingleChildScrollView(
+            child: SizedBox(
+              width: media_querysize.width,
+              height: media_querysize.height,
+              child: Column(
+                children: [
+                  Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          _showEmailInput(),
+                        ],
+                      )),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    width: media_querysize.width - 234,
+                    height: media_querysize.height / 28,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        String email = _editColEmail.text;
+                        await SearchPassword(email).then((value) {
+                          value as Map;
+                          if (value["result"] == true) {
+                            searchDialog(context, "해당 이메일로 메일을 보냈습니다");
+                          }
+                        },
+                        onError: (e){
+                          errorDialog(context, "${e} 에러가 발생했습니다");
+                        }
+                        );
+                      },
+                      child: Text('비밀번호 찾기'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    width: media_querysize.width - 234,
+                    height: media_querysize.height / 28,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (BuildContext context) => signinPage(),
+                        ));
+                      },
+                      child: Text('메인으로'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
-              SizedBox(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      primary: Color.fromARGB(255, 232, 232, 232),
-                      onPrimary: Colors.black),
-                  onPressed: () async{
-                    String email = _editColEmail.text;
-                    await SearchPassword( email).then((value){
-                               value as Map;
-                                if (value["result"] == true) {
-                                  searchDialog(context,"해당 이메일로 메일을 보냈습니다");
-                                }else if (value["result"] == false) {
-                                  String error = value["error"];
-                                  errorDialog(context, error);
-                                }
-                    });
-                  },
-                  child: Text('비밀번호 찾기'),
-                ),
-              ),
-              SizedBox(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      primary: Color.fromARGB(255, 232, 232, 232),
-                      onPrimary: Colors.black),
-                  onPressed: () {
-                    popbeforePage(context);
-                  },
-                  child: Text('뒤로가기'),
-                ),
-              ),
-              SizedBox(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      primary: Color.fromARGB(255, 232, 232, 232),
-                      onPrimary: Colors.black),
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute<void>(
-                      builder: (BuildContext context) => signinPage(),
-                    ));
-                  },
-                  child: Text('메인으로'),
-                ),
-              ),
-            ],
-          ),
-        ));
-    throw UnimplementedError();
+        // bottomNavigationBar: Container(
+        //   margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: [
+        //       //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
+        //       SizedBox(
+        //         child: ElevatedButton(
+        //           style: ElevatedButton.styleFrom(
+        //               primary: Color.fromARGB(255, 232, 232, 232),
+        //               onPrimary: Colors.black),
+        //           onPressed: () async {
+        //             String email = _editColEmail.text;
+        //             await SearchPassword(email).then((value) {
+        //               value as Map;
+        //               if (value["result"] == true) {
+        //                 searchDialog(context, "해당 이메일로 메일을 보냈습니다");
+        //               } else if (value["result"] == false) {
+        //                 String error = value["error"];
+        //                 errorDialog(context, error);
+        //               }
+        //             });
+        //           },
+        //           child: Text('비밀번호 찾기'),
+        //         ),
+        //       ),
+        //       SizedBox(
+        //         child: ElevatedButton(
+        //           style: ElevatedButton.styleFrom(
+        //               primary: Color.fromARGB(255, 232, 232, 232),
+        //               onPrimary: Colors.black),
+        //           onPressed: () {
+        //             popbeforePage(context);
+        //           },
+        //           child: Text('뒤로가기'),
+        //         ),
+        //       ),
+        //       SizedBox(
+        //         child: ElevatedButton(
+        //           style: ElevatedButton.styleFrom(
+        //               primary: Color.fromARGB(255, 232, 232, 232),
+        //               onPrimary: Colors.black),
+        //           onPressed: () {
+        //             Navigator.of(context).push(MaterialPageRoute<void>(
+        //               builder: (BuildContext context) => signinPage(),
+        //             ));
+        //           },
+        //           child: Text('메인으로'),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        );
+   
   }
 
   Widget _showEmailInput() {
@@ -213,23 +255,21 @@ void searchDialog(BuildContext context, String value) async {
             ]);
       });
 }
-  void popbeforePage(final context) {
-    Navigator.pop(context);
-  }
-  Widget searchPwButton(TextEditingController _editColEmail){
-   return  SizedBox(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            primary: Color.fromARGB(255, 232, 232, 232),
-                            onPrimary: Colors.black),
-                        onPressed: () async{
-                          String email = _editColEmail.text;
-                          await SearchPassword(email).then((value) => {
-                            
-                          });
-                        },
-                        child: Text('비밀번호 찾기'),
-                      ),
-                    );
-                    }
-  
+
+void popbeforePage(final context) {
+  Navigator.pop(context);
+}
+
+Widget searchPwButton(TextEditingController _editColEmail) {
+  return SizedBox(
+    child: ElevatedButton(
+      style: ElevatedButton.styleFrom(
+          primary: Color.fromARGB(255, 232, 232, 232), onPrimary: Colors.black),
+      onPressed: () async {
+        String email = _editColEmail.text;
+        await SearchPassword(email).then((value) => {});
+      },
+      child: Text('비밀번호 찾기'),
+    ),
+  );
+}

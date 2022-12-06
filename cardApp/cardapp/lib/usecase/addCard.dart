@@ -1,11 +1,12 @@
+
+
 import 'dart:io';
 
-import 'package:cardapp/model/busCard.dart';
-import 'package:cardapp/screen/addCardPage.dart';
+import 'package:cardapp/utility/firebase_Store.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
-import '../utility/firebase_Store.dart';
+import '../model/busCard.dart';
 
 Future addCardData(
     BuildContext context,
@@ -21,7 +22,8 @@ Future addCardData(
     String companyCallNum,
     String createEndDate,
     String createDateEndSecond,
-    String document) async {
+    String document
+    ) async {
   
     if (homePage.isEmpty) {
       homePage = "없음";
@@ -29,12 +31,17 @@ Future addCardData(
     File file = File(path);
     final metadata = SettableMetadata(contentType: "image/jpeg");
     // firebase에 사진 저장
-    final ref = storageRef
-        .child("Cards/${User}/${document}.jpg")
+    final ref = FireStoreApp()
+        .getStorage()
+        .child("Cards")
+        .child("/${User}")
+        .child("/${document}.jpg")
         .putFile(file, metadata);
 
-    String url = await storageRef
-        .child("Cards/${User}/${document}.jpg")
+    String url = await FireStoreApp().getStorage()
+        .child("Cards")
+        .child("/${User}")
+        .child("/${document}.jpg")
         .getDownloadURL();
 
     if (url.isNotEmpty) {

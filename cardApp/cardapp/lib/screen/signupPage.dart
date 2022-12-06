@@ -80,7 +80,38 @@ class signupPage_View extends State<signupPage> {
                     _showEmailInput(),
                     _showPasswordInput(),
                     _showIsPasswordInput(),
-                    _showPhoneNumInput()
+                    _showPhoneNumInput(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    SizedBox(
+                      width: media_querysize.width - 234,
+                      height: media_querysize.height / 28,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          String email = _editColEmail.text.trim();
+                          String password = _editColPassword.text.trim();
+                          String isPassword = _editColIsPassword.text.trim();
+                          String phoneNum = _editColPhoneNum.text.trim();
+                          String createDate = getCurrentDate().trim();
+
+                          String key = 'buscard app password';
+                          String pwEncrypted = Encryptor.encrypt(key, password);
+
+                          await signUp(email, pwEncrypted, phoneNum, createDate)
+                              .then((value) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (BuildContext context) => signinPage(),
+                              ),
+                            );
+                          }, onError: (e) {
+                            errorDialog(context, "${e} 에러가 발생했습니다.");
+                          });
+                        },
+                        child: Text("${title}"),
+                      ),
+                    ),
                   ],
                 )),
           ),
@@ -90,41 +121,7 @@ class signupPage_View extends State<signupPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    String email = _editColEmail.text.trim();
-                    String password = _editColPassword.text.trim();
-                    String isPassword = _editColIsPassword.text.trim();
-                    String phoneNum = _editColPhoneNum.text.trim();
-                    String createDate = getCurrentDate().trim();
-
-                    String key = 'buscard app password';
-                    String pwEncrypted = Encryptor.encrypt(key, password);
-
-                    await signUp(email, pwEncrypted, phoneNum, createDate).then(
-                        (value) {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (BuildContext context) => signinPage(),
-                        ),
-                      );
-                    }, onError: (e) {
-                      errorDialog(context, "${e} 에러가 발생했습니다.");
-                    });
-                  },
-                  child: Text("${title}"),
-                ),
-              ),
               //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
-              SizedBox(
-                child: ElevatedButton(
-                  onPressed: () {
-                    popbeforePage(context);
-                  },
-                  child: Text('뒤로 가기'),
-                ),
-              ),
             ],
           ),
         ));

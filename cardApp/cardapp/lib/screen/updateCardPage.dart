@@ -150,7 +150,7 @@ class updateCard_View extends State<updateCard> {
     var media_querysize = MediaQuery.of(context).size;
     // String filename = widget.filename;
     String User = widget.User;
-    String title = "명함 생성";
+    String title = "명함 수정";
 
     return isLoading
         ? Scaffold(
@@ -224,99 +224,114 @@ class updateCard_View extends State<updateCard> {
                         _showPositionInput(),
                         _showAddressInput(),
                         _showHomePageInput(),
+                        SizedBox(height: 20,),
+                        SizedBox(
+                          width: media_querysize.width - 234,
+                          height: media_querysize.height / 28,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              onSurface: Colors.blue,
+                            ),
+                            onPressed: isButtonActive
+                                ? () async {
+                                    String name = _editColName.text.trim();
+                                    String companyName =
+                                        _editColCompanyName.text.trim();
+                                    String position =
+                                        _editColPosition.text.trim();
+                                    String phoneNum =
+                                        _editColPhoneNum.text.trim();
+                                    String email = _editColEmail.text.trim();
+                                    String homePage = _editColHomePage.text.trim();
+                                    String address =
+                                        _editColAddress.text.trim();
+                                    String companyCallNum =
+                                        _editColCompanyCallNum.text.trim();
+                                    String createDateEndSecond =
+                                        getCurrentSecond().trim();
+                                    String url = "";
+                                    String createEndDate =
+                                        getCurrentDate().trim();
+                                    String document = widget.documentName;
+                                    if (path.isNotEmpty) {
+                                      await updateCardData(
+                                        context,
+                                        User,
+                                        path,
+                                        name,
+                                        companyName,
+                                        position,
+                                        phoneNum,
+                                        email,
+                                        homePage,
+                                        address,
+                                        companyCallNum,
+                                        createEndDate,
+                                        createDateEndSecond,
+                                        document,
+                                      ).then(
+                                        (value) {
+                                          Navigator.of(context).pop();
+                                          // value as Map;
+                                          // if (value["result"] == true) {
+                                          //   Navigator.of(context).pop();
+                                          // } else if (value["result"] == false) {
+                                          //   String error = value["error"];명
+                                          //   errorDialog(context, error);
+                                          // }
+                                        },
+                                        onError: (e){errorDialog(context, "${e} 에러가 발생했습니다.");}
+                                      );
+                                    } else {
+                                      errorDialog(context, "이미지를 선택해주세요");
+                                    }
+
+                                  }
+                                : null, // <-- Text
+                            child: Text("명함수정"),
+                          ),
+                        ),
                       ],
                     )),
               ),
             ),
-            bottomNavigationBar: Container(
-              margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          onSurface: Colors.blue,
-                        ),
-                        onPressed: isButtonActive
-                            ? () async {
-                                String name = _editColName.text.trim();
-                                String companyName =
-                                    _editColCompanyName.text.trim();
-                                String position = _editColPosition.text.trim();
-                                String phoneNum = _editColPhoneNum.text.trim();
-                                String email = _editColPhoneNum.text.trim();
-                                String homePage = _editColEmail.text.trim();
-                                String address = _editColAddress.text.trim();
-                                String companyCallNum =
-                                    _editColCompanyCallNum.text.trim();
-                                String createDateEndSecond =
-                                    getCurrentSecond().trim();
-                                String filename = path;
-                                String url = "";
-                                String createEndDate = getCurrentDate().trim();
-                                String document = widget.documentName;
+            // bottomNavigationBar: Container(
+            //   margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+            //   child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //       children: [
 
-                                await updateCardData(
-                                  context,
-                                  User,
-                                  path,
-                                  name,
-                                  companyName,
-                                  position,
-                                  phoneNum,
-                                  email,
-                                  homePage,
-                                  address,
-                                  companyCallNum,
-                                  createEndDate,
-                                  createDateEndSecond,
-                                  document,
-                                ).then(
-                                  (value) {
-                                    Navigator.of(context).pop();
-                                    // value as Map;
-                                    // if (value["result"] == true) {
-                                    //   Navigator.of(context).pop();
-                                    // } else if (value["result"] == false) {
-                                    //   String error = value["error"];
-                                    //   errorDialog(context, error);
-                                    // }
-                                  },
-                                );
-                              }
-                            : null,
-                        icon: Icon(
-                          // <-- Icon
-                          Icons.download,
-                          size: 24.0,
-                        ), // <-- Text
-                        label: Text("${title}"),
-                      ),
-                    ),
-                    SizedBox(
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.arrow_back_ios_new_outlined),
-                        onPressed: () {
-                          popAddCard(context, "filename");
-                        },
-                        label: Text('뒤로가기'),
-                      ),
-                    ),
-                  ]),
-            ),
+            //         SizedBox(
+            //           child: ElevatedButton.icon(
+            //             icon: Icon(Icons.arrow_back_ios_new_outlined),
+            //             onPressed: () {
+            //               popAddCard(context, "filename");
+            //             },
+            //             label: Text('뒤로가기'),
+            //           ),
+            //         ),
+            //       ]),
+            // ),
           )
         : Scaffold(
             body: Center(
-              child: Row(children: [
-                Text(
-                  "이미지를 스캔하는 중입니다.",
-                  style: TextStyle(color: Colors.blue, fontSize: 15),
-                ),
-                SpinKitCircle(
-                  size: 140,
-                  color: Colors.blue,
-                ),
+              child: Column(children: [
+                SizedBox(
+                  child: Column(
+                    children: [
+                      SizedBox(height: 400,),
+                      Text(
+                        "이미지를 스캔하는 중입니다.",
+                        style: TextStyle(color: Colors.blue, fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                      SpinKitCircle(
+                        size: 14,
+                        color: Colors.blue,
+                      ),
+                    ],
+                  ),
+                )
               ]),
             ),
           );

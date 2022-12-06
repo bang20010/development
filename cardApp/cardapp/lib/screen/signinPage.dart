@@ -12,7 +12,7 @@ import 'mainPage.dart';
 
 GoogleSignIn _googleSignIn = GoogleSignIn(
   // Optional clientId
-  // clientId: '479882132969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
+  // clientId: '479882128969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
   scopes: <String>[
     'email',
     'https://www.googleapis.com/auth/contacts.readonly', // 반환값 확인
@@ -41,7 +41,6 @@ class signinPage_View extends State<signinPage> {
   FocusNode _passwordFocus = new FocusNode();
   late bool isButtonActive;
 
-
   @override
   void initState() {
     isButtonActive = false;
@@ -66,116 +65,137 @@ class signinPage_View extends State<signinPage> {
             textAlign: TextAlign.center),
         centerTitle: true,
       ),
-      body: Container(
-        margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-        width: media_querysize.width,
-        height: media_querysize.height + 250,
-        child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                _showEmailInput(),
-                _showPasswordInput(),
-                SizedBox(
-                  height: media_querysize.height / 30,
-                ),
-                SizedBox(
-                  width: media_querysize.width - 230,
-                  height: media_querysize.height / 28,
-                  child: SignInButton(
-                    Buttons.Google,
-                    text: "구글로 로그인 하기",
-                    onPressed: () async {
-                      setState(() {
-                        _isSigningIn = true;
-                      });
-                      setState(() {
-                        _isSigningIn = false;
-                      });
-                    },
+      body: Center(
+        child: SingleChildScrollView(
+          child: SizedBox(
+            width: media_querysize.width,
+            height: media_querysize.height ,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  _showEmailInput(),
+                  _showPasswordInput(),
+                  SizedBox(
+                    height: 20,
                   ),
-                ),
-                SizedBox(
-                  height: media_querysize.height / 30,
-                ),
-                SizedBox(
-                  width: media_querysize.width - 230,
-                  height: media_querysize.height / 28,
-                  child: ElevatedButton.icon(
-                    icon: Icon(Icons.email),
-                    style: ElevatedButton.styleFrom(
-                      onSurface: Colors.blue,
-                    ),
-                    onPressed: isButtonActive
-                        ? () async {
-                            String email = _editColEmail.text.trim();
-                            String password = _editColPassword.text.trim();
-                            await signIn(email, password).then(
-                              (value) {
+                  // SizedBox(
+                  //   width: media_querysize.width - 234,
+                  //   height: media_querysize.height / 28,
+                  //   child: SignInButton(
+                  //     Buttons.Google,
+                  //     text: "구글로 로그인 하기",
+                  //     onPressed: () async {
+                  //       setState(() {
+                  //         _isSigningIn = true;
+                  //       });
+                  //       setState(() {
+                  //         _isSigningIn = false;
+                  //       });
+                  //     },
+                  //   ),
+                  // ),
+                  // SizedBox(
+                  //   height: 20,
+                  // ),
+                  SizedBox(
+                    width: media_querysize.width - 234,
+                    height: media_querysize.height / 28,
+                    child: ElevatedButton.icon(
+                      icon: Icon(Icons.email),
+                      style: ElevatedButton.styleFrom(
+                        onSurface: Colors.blue,
+                      ),
+                      onPressed: isButtonActive
+                          ? () async {
+                              String email = _editColEmail.text.trim();
+                              String password = _editColPassword.text.trim();
+                              await signIn(email, password).then((value) {
                                 // value as bool;
                                 // if (value == true) {
-                                        Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (BuildContext context) =>
-                                          mainPage(
-                                        email: email,
-                                      ),
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (BuildContext context) => mainPage(
+                                      email: email,
                                     ),
-                                  );
-                                  },
-                                  onError: (e){errorDialog(context, "${e} 에러가 발생했습니다.");}
-                              
-                                  // var userinfo = value["docid"] as UserCredential;
-                                  // Navigator.of(context).push(
-                                  //   MaterialPageRoute<void>(
-                                  //     builder: (BuildContext context) =>
-                                  //         mainPage(
-                                  //       email: userinfo.credential!.providerId,
-                                  //     ),
-                                  //   ),
-                                  // );
-                                // } else if (value == false) {
-                                //   errorDialog(context, "로그인에 실패했습니다.");
-                                // }
-                              
-                            );
-                          }
-                        : null,
-                    label: Text('이메일로 로그인'),
+                                  ),
+                                );
+                              }, onError: (e) {
+                                errorDialog(context, "아이디나 비밀번호가 일치하지 않습니다.");
+                              });
+                            }
+                          : null,
+                      label: Text('이메일로 로그인'),
+                    ),
                   ),
-                ),
-              ],
-            )),
-      ),
-      bottomNavigationBar: Container(
-        margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
-          //핸드폰 번호로 아이디 찾기
-          SizedBox(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute<void>(
-                  builder: (BuildContext context) => const searchIdPage(),
-                ));
-              },
-              child: Text('아이디 찾기'),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  
+                
+                  SizedBox(
+                         width: media_querysize.width - 234,
+                                             height: media_querysize.height / 28,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (BuildContext context) => const signupPage(),
+                        ));
+                      },
+                      child: Text('회원가입'),
+                    ),
+                  ),
+                     SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    width: media_querysize.width - 234,
+                    height: media_querysize.height / 28,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                              searchIdPage(),
+                        ));
+                      },
+                      child: Text('아이디 찾기'),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          //아이디 찾은 후 이메일로 인증 받아서 확인
-          SizedBox(
-            child: ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).push(MaterialPageRoute<void>(
-                  builder: (BuildContext context) => const signupPage(),
-                ));
-              },
-              child: Text('회원가입'),
-            ),
-          ),
-        ]),
+        ),
       ),
+      // bottomNavigationBar: Container(
+      //   margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+      //   child:
+      //       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      //     //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
+      //     //핸드폰 번호로 아이디 찾기
+      //     SizedBox(
+      //       child: ElevatedButton(
+      //         onPressed: () {
+      //           Navigator.of(context).push(MaterialPageRoute<void>(
+      //             builder: (BuildContext context) => const searchIdPage(),
+      //           ));
+      //         },
+      //         child: Text('아이디 찾기'),
+      //       ),
+      //     ),
+      //     //아이디 찾은 후 이메일로 인증 받아서 확인
+      //     SizedBox(
+      //       child: ElevatedButton(
+      //         onPressed: () async {
+      //           Navigator.of(context).push(MaterialPageRoute<void>(
+      //             builder: (BuildContext context) => const signupPage(),
+      //           ));
+      //         },
+      //         child: Text('회원가입'),
+      //       ),
+      //     ),
+      //   ]),
+      // ),
     );
     throw UnimplementedError();
   }

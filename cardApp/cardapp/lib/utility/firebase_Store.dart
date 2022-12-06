@@ -1,21 +1,23 @@
-import 'package:cloud_firestore/cloud_firestore.dart'; 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class FireStoreApp {
   // get firestore document data
   final CollectionReference collection =
       FirebaseFirestore.instance.collection("CardData");
-        final CollectionReference userCollection =
-      FirebaseFirestore.instance.collection("CardData");
+  final CollectionReference userCollection =
+      FirebaseFirestore.instance.collection("User");
   final storageRef = FirebaseStorage.instance.ref();
-  
-  getCardCollection(){
-   return collection;
+
+  getCardCollection() {
+    return collection;
   }
-  getStorage(){
+
+  getStorage() {
     return storageRef;
   }
-  getUserColloection(){
+
+  getUserColloection() {
     return userCollection;
   }
 }

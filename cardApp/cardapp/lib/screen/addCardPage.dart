@@ -1,28 +1,27 @@
-import 'package:cardapp/usecase/getCurrentSecond.dart';
-import 'package:cardapp/usecase/getCurrentTDate.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
-import '../usecase/addCard.dart';
+import 'dart:core';
 import 'dart:io';
 
+import 'package:cardapp/usecase/getCurrentSecond.dart';
+import 'package:cardapp/usecase/getCurrentTDate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/material.dart';
+
+import '../usecase/addCard.dart';
 import '../usecase/checkAddCardValue.dart';
 
 class addCard extends StatefulWidget {
   const addCard(
       {Key? key,
       // required this.filename,
-      required String this.email})
+      required this.email})
       : super(key: key);
   // final String filename;
   final String email;
   @override
   addCard_View createState() => addCard_View();
 }
-
-final storageRef = FirebaseStorage.instance.ref();
 
 class addCard_View extends State<addCard> {
   bool isLoading = true;
@@ -229,103 +228,121 @@ class addCard_View extends State<addCard> {
                         _showPositionInput(),
                         _showAddressInput(),
                         _showHomePageInput(),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        SizedBox(
+                          width: media_querysize.width - 234,
+                          height: media_querysize.height / 28,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              onSurface: Colors.blue,
+                            ),
+                            onPressed: isButtonActive
+                                ? () async {
+                                    bool checkCard = false;
+                                    String name = _editColName.text.trim();
+                                    String companyName =
+                                        _editColCompanyName.text.trim();
+                                    String position =
+                                        _editColPosition.text.trim();
+                                    String phoneNum =
+                                        _editColPhoneNum.text.trim();
+                                    String email = _editColPhoneNum.text.trim();
+                                    String homePage = _editColEmail.text.trim();
+                                    String address =
+                                        _editColAddress.text.trim();
+                                    String companyCallNum =
+                                        _editColCompanyCallNum.text.trim();
+                                    String createDateEndSecond =
+                                        getCurrentSecond();
+
+                                    String url = "";
+                                    String createEndDate = getCurrentDate();
+                                    String document =
+                                        rtnDocument(name, position, phoneNum)
+                                            .trim();
+                                    if (path.isNotEmpty) {
+                                      await addCardData(
+                                              context,
+                                              User,
+                                              path,
+                                              name,
+                                              companyName,
+                                              position,
+                                              phoneNum,
+                                              email,
+                                              homePage,
+                                              address,
+                                              companyCallNum,
+                                              createEndDate,
+                                              createDateEndSecond,
+                                              document)
+                                          .then((value) {}, onError: (e) {
+                                        errorDialog(context, "${e} 에러가 발생했습니다");
+                                      });
+                                      //     .then(
+                                      //   (value) {
+                                      //     value as Map;
+                                      //     if (value["result"] == true) {
+                                      //       Navigator.of(context).pop();
+                                      //     } else if (value["result"] == false) {
+                                      //       String error = value["error"];
+                                      //       errorDialog(context, error);
+                                      //     }
+                                      //   },
+                                      // );
+                                    } else {
+                                      errorDialog(context, "이미지를 선택해주세요");
+                                    }
+                                  }
+                                : null,
+                            child: Text("${title}"),
+                          ),
+                        ),
                       ],
                     )),
               ),
             ),
-            bottomNavigationBar: Container(
-              margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          onSurface: Colors.blue,
-                        ),
-                        onPressed: isButtonActive
-                            ? () async {
-                                bool checkCard = false;
-                                String name = _editColName.text.trim();
-                                String companyName =
-                                    _editColCompanyName.text.trim();
-                                String position = _editColPosition.text.trim();
-                                String phoneNum = _editColPhoneNum.text.trim();
-                                String email = _editColPhoneNum.text.trim();
-                                String homePage = _editColEmail.text.trim();
-                                String address = _editColAddress.text.trim();
-                                String companyCallNum =
-                                    _editColCompanyCallNum.text.trim();
-                                String createDateEndSecond = getCurrentSecond();
-                                String path = "";
-                                String url = "";
-                                String createEndDate = getCurrentDate();
-                                String document =
-                                    rtnDocument(name, position, phoneNum)
-                                        .trim();
-
-                                await addCardData(
-                                        context,
-                                        User,
-                                        path,
-                                        name,
-                                        companyName,
-                                        position,
-                                        phoneNum,
-                                        email,
-                                        homePage,
-                                        address,
-                                        companyCallNum,
-                                        createEndDate,
-                                        createDateEndSecond,
-                                        document)
-                                    .then((value) {}, onError: (e) {
-                                  errorDialog(context, "${e} 에러가 발생했습니다");
-                                });
-                                //     .then(
-                                //   (value) {
-                                //     value as Map;
-                                //     if (value["result"] == true) {
-                                //       Navigator.of(context).pop();
-                                //     } else if (value["result"] == false) {
-                                //       String error = value["error"];
-                                //       errorDialog(context, error);
-                                //     }
-                                //   },
-                                // );
-                              }
-                            : null,
-                        icon: Icon(
-                          // <-- Icon
-                          Icons.download,
-                          size: 24.0,
-                        ), // <-- Text
-                        label: Text("${title}"),
-                      ),
-                    ),
-                    SizedBox(
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.arrow_back_ios_new_outlined),
-                        onPressed: () {
-                          popAddCard(context, "filename");
-                        },
-                        label: Text('뒤로가기'),
-                      ),
-                    ),
-                  ]),
-            ),
+            // bottomNavigationBar: Container(
+            //   margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
+            //   child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //       children: [
+            //          SizedBox(
+            //           child: ElevatedButton.icon(
+            //             icon: Icon(Icons.arrow_back_ios_new_outlined),
+            //             onPressed: () {
+            //               popAddCard(context, "filename");
+            //             },
+            //             label: Text('뒤로가기'),
+            //           ),
+            //         ),
+            //       ]),
+            // ),
           )
         : Scaffold(
             body: Center(
-              child: Row(children: [
-                Text(
-                  "이미지를 스캔하는 중입니다.",
-                  style: TextStyle(color: Colors.blue, fontSize: 15),
-                ),
-                SpinKitCircle(
-                  size: 140,
-                  color: Colors.blue,
-                ),
+              child: Column(children: [
+                SizedBox(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 400,
+                      ),
+                      Text(
+                        "이미지를 스캔하는 중입니다.",
+                        style: TextStyle(color: Colors.blue, fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 40),
+                      SpinKitCircle(
+                        size: 50,
+                        color: Colors.blue,
+                      ),
+                    ],
+                  ),
+                )
               ]),
             ),
           );
@@ -663,7 +680,6 @@ void popAddCard(final context, String filename) {
   filename = "";
   Navigator.pop(context);
 }
-<<<<<<< HEAD
 
 // void runImagePiker(BuildContext context, String path) async {
 //   // android && ios only
@@ -682,12 +698,3 @@ String rtnDocument(String companyName, String name, String position) {
   }
   return document;
 }
-=======
- String rtnDocument(String companyName, String name, String position) {
-    String document = "";
-    if (companyName.isNotEmpty && name.isNotEmpty && position.isNotEmpty) {
-      document = "${companyName}_ ${name}_ ${position}";
-    }
-    return document;
-  }
->>>>>>> origin/main

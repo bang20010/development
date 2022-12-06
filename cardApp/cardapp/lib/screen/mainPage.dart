@@ -156,9 +156,9 @@ class mainPage_View extends State<mainPage> {
                                                         onPressed: () async {
                                                           String
                                                               getDocumentName =
-                                                              snap[index]
-                                                                  ["document"];
-                                                          addDialog(context,
+                                                              snap[index].id;
+                                                          isDeleteDialog(
+                                                              context,
                                                               "명함을 삭제하시겠습니까?");
                                                           await deleteCard(User,
                                                                   getDocumentName)
@@ -253,11 +253,15 @@ class mainPage_View extends State<mainPage> {
           ),
           ListTile(
             title: Text('로그아웃'),
-            onTap: () => signOut(),
+            onTap: () async {
+              signOut().then((value) {}, onError: (e) {
+                errorDialog(context, "${e} 에러가 발생했습니다.");
+              });
+            },
           ),
           ListTile(
             title: Text('뒤로가기'),
-            onTap: () => popbeforePage(context),
+            onTap: (){popbeforePage(context);},
           ),
         ],
       ),
@@ -295,7 +299,7 @@ Widget addBusCard(BuildContext context, String User) {
   // );
 }
 
-void addDialog(BuildContext context, String value) async {
+void isDeleteDialog(BuildContext context, String value) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: false, // user must tap button!

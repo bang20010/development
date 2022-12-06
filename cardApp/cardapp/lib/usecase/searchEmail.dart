@@ -4,15 +4,18 @@ import 'package:flutter/material.dart';
 import '../utility/firebase_ Authentication.dart';
 import '../utility/firebase_Store_User.dart';
 
-Future searchUserEmail(String phonenumber) async {
+Future<String> searchUserEmail(String phonenumber) async {
+  String rtnValue = "";
   await FireStoreApp().getUserColloection().get().then((snapshot) {
     snapshot.docs.forEach((doc) {
       final data = doc.data() as Map<String, dynamic>;
       if (doc.id == phonenumber) {
-        return data["email"];
+          rtnValue = data["email"];
+          return false;
       }
     });
   });
+  return rtnValue;
 }
   // .then(
   //   (providers) {
