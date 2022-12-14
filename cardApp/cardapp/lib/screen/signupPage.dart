@@ -95,7 +95,7 @@ class signupPage_View extends State<signupPage> {
                           String phoneNum = _editColPhoneNum.text.trim();
                           String createDate = getCurrentDate().trim();
 
-                          String key = 'buscard app password';
+                         
                           String pwEncrypted = Encryptor.encrypt(key, password);
 
                           await signUp(email, pwEncrypted, phoneNum, createDate)
