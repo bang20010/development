@@ -1,12 +1,10 @@
-import 'dart:convert'; 
+import 'dart:convert';
 
 List<busCard> busCardFromJson(String str) =>
     List<busCard>.from(json.decode(str).map((x) => busCard.fromJson(x)));
 
 String busCardToJson(List<busCard> data) =>
     json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
-    
 
 class busCard {
   String name;

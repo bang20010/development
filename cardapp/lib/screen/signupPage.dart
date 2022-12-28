@@ -1,5 +1,6 @@
 import 'package:cardapp/screen/searchPwPage.dart';
 import 'package:cardapp/screen/signinPage.dart';
+import 'package:cardapp/screen/termsOfService.dart';
 import 'package:cardapp/usecase/getCurrentDate.dart';
 import 'package:cardapp/utility/firebase_%20Authentication.dart';
 import 'package:cardapp/utility/firebase_Store_User.dart';
@@ -34,6 +35,7 @@ class signupPage_View extends State<signupPage> {
   FocusNode _idFocus = new FocusNode();
 
   late bool isButtonActive;
+  late bool _isChecked;
 
   bool checkEmail = false;
   bool checkPassword = false;
@@ -42,6 +44,7 @@ class signupPage_View extends State<signupPage> {
   @override
   void initState() {
     isButtonActive = false;
+    _isChecked = false;
     super.initState();
     // 생성자로 만드는 초기화 패턴
     _editColEmail = TextEditingController();
@@ -57,76 +60,121 @@ class signupPage_View extends State<signupPage> {
     String title = "회원 가입";
 
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Text("${title}",
-              style: TextStyle(
-                color: Colors.black,
-              ),
-              textAlign: TextAlign.center),
-          centerTitle: true,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text("${title}",
+            style: TextStyle(
+              color: Colors.black,
+            ),
+            textAlign: TextAlign.center),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
+          width: media_querysize.width,
+          height: media_querysize.height + 250,
+          child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  _showEmailInput(),
+                  _showPasswordInput(),
+                  _showIsPasswordInput(),
+                  _showPhoneNumInput(),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _isChecked,
+                          onChanged: (value) {
+                            setState(() {
+                              _isChecked = value!;
+                            });
+                          },
+                        ),
+                        GestureDetector(
+                            child: Text("개인정보 활용에 동의하시겠습니까?",
+                                style: TextStyle(color: Colors.blue)),
+                            onTap: () {
+                              Navigator.of(context)
+                                  .push(MaterialPageRoute<void>(
+                                builder: (BuildContext context) =>
+                                    termsOfService(),
+                              ));
+                            })
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                      width: media_querysize.width - 230,
+                      height: media_querysize.height / 28,
+                      child: ElevatedButton(
+                        onPressed: isButtonActive
+                            ? () async {
+                                String email = _editColEmail.text.trim();
+                                String password = _editColPassword.text.trim();
+                                String isPassword =
+                                    _editColIsPassword.text.trim();
+                                String phoneNum = _editColPhoneNum.text.trim();
+                                String createDate = getCurrentDate().trim();
+                                if (_isChecked) {
+                                  await signUp(
+                                          email, password, phoneNum, createDate)
+                                      .then((value) {
+                                    signUpDialog(context, "회원가입을 완료했습니다");
+                                  }, onError: (e) {
+                                    errorDialog(context, "회원가입에 실패했습니다.");
+                                  });
+                                } else {
+                                  errorDialog(context, "이용 약관을 체크해주세요.");
+                                }
+                              }
+                            : null,
+                        child: Text("${title}"),
+                      )),
+                ],
+              )),
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.fromLTRB(0, 15, 0, 0),
-            width: media_querysize.width,
-            height: media_querysize.height + 250,
-            child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    _showEmailInput(),
-                    _showPasswordInput(),
-                    _showIsPasswordInput(),
-                    _showPhoneNumInput()
-                  ],
-                )),
-          ),
-        ),
-        bottomNavigationBar: Container(
-          margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                child: ElevatedButton(
-                  onPressed: () async {
-                    String email = _editColEmail.text.trim();
-                    String password = _editColPassword.text.trim();
-                    String isPassword = _editColIsPassword.text.trim();
-                    String phoneNum = _editColPhoneNum.text.trim();
-                    String createDate = getCurrentDate().trim();
+      ),
+      // bottomNavigationBar: Container(
+      //   margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //     children: [
+      //       SizedBox(
+      //         child: ElevatedButton(
+      //           onPressed: () async {
+      //             String email = _editColEmail.text.trim();
+      //             String password = _editColPassword.text.trim();
+      //             String isPassword = _editColIsPassword.text.trim();
+      //             String phoneNum = _editColPhoneNum.text.trim();
+      //             String createDate = getCurrentDate().trim();
 
-                    await signUp(email, password, phoneNum, createDate).then(
-                      (value) {
-                        value as Map;
-                        if (value["result"] == true) {
-                          signUpDialog(context,"회원가입을 완료했습니다");
-                          // var userinfo = value["docid"] as UserCredential;
-                        } else if (value["result"] == false) {
-                          String error = value["error"];
-                          errorDialog(context, error);
-                        }
-                        ;
-                      },
-                    );
-                  },
-                  child: Text("${title}"),
-                ),
-              ),
-              //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
-              SizedBox(
-                child: ElevatedButton(
-                  onPressed: () {
-                    popbeforePage(context);
-                  },
-                  child: Text('뒤로 가기'),
-                ),
-              ),
-            ],
-          ),
-        ));
-    throw UnimplementedError();
+      //             await signUp(email, password, phoneNum, createDate).then(
+      //                 (value) {
+      //               signUpDialog(context, "회원가입을 완료했습니다");
+      //             }, onError: (e) {
+      //               errorDialog(context, "회원가입에 실패했습니다.");
+      //             });
+      //           },
+      //           child: Text("${title}"),
+      //         ),
+      //       ),
+      //       //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
+      //       SizedBox(
+      //         child: ElevatedButton(
+      //           onPressed: () {
+      //             popbeforePage(context);
+      //           },
+      //           child: Text('뒤로 가기'),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
+    );
   }
 
   Widget _showEmailInput() {
@@ -258,6 +306,7 @@ class signupPage_View extends State<signupPage> {
                       return "핸드폰 번호가 비어있습니다.";
                     }
                     if (isValue.hasMatch(value)) {
+                      isButtonActive = true;
                       return null;
                     } else {
                       return "핸드폰 번호를 정확히 입력해주세요.";
@@ -332,16 +381,16 @@ class signupPage_View extends State<signupPage> {
                 TextButton(
                     child: const Text('확인'),
                     onPressed: () {
-                      Navigator.of(context)
-                        .push(
-                          MaterialPageRoute<void>(
-                              builder: (BuildContext context) => signinPage()),
-                        );
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                            builder: (BuildContext context) => signinPage()),
+                      );
                     })
               ]);
         });
   }
 }
-  void popbeforePage(final context) {
-    Navigator.pop(context);
-  }
+
+void popbeforePage(final context) {
+  Navigator.pop(context);
+}

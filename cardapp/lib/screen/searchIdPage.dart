@@ -52,10 +52,7 @@ class searchIdPage_View extends State<searchIdPage> {
                   children: [
                     _showPhoneNumInput(),
                     SizedBox(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            primary: Color.fromARGB(255, 232, 232, 232),
-                            onPrimary: Colors.black),
+                      child: TextButton(
                         onPressed: () {
                           String email = _editColEmailNum.text.trim();
 
@@ -75,10 +72,7 @@ class searchIdPage_View extends State<searchIdPage> {
             children: [
               //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
               SizedBox(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      primary: Color.fromARGB(255, 232, 232, 232),
-                      onPrimary: Colors.black),
+                child: TextButton(
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute<void>(
                       builder: (BuildContext context) => searchPW(),

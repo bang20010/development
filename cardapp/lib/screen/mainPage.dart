@@ -1,4 +1,3 @@
-import 'package:cardapp/screen/getTextPage.dart';
 import 'package:cardapp/screen/signinPage.dart';
 import 'package:cardapp/screen/updateCardPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../usecase/signOut.dart';
-import '../utility/firebase_ Authentication.dart';
-import '../utility/firebase_Store.dart';
 import '../usecase/removeCard.dart';
 import 'addCardPage.dart';
 
@@ -24,23 +21,6 @@ class mainPage_View extends State<mainPage> {
   String path = "";
   late bool isButtonActive;
 
-  void runImagePiker(String User) async {
-    // android && ios only
-    var pickedFile = await ImagePicker()
-        .getImage(source: ImageSource.gallery)
-        .then((pickedFile) => path = pickedFile!.path);
-    if (path != "") {
-      Navigator.of(context).push(MaterialPageRoute<void>(
-        builder: (BuildContext context) => addCard(
-          filename: path,
-          email: User,
-        ),
-      ));
-    } else {
-      Navigator.pop(context);
-    }
-  }
-
   @override
   void initState() {
     // User user = widget._user;
@@ -56,204 +36,191 @@ class mainPage_View extends State<mainPage> {
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     var media_querysize = MediaQuery.of(context).size;
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      drawer: _NavBar(User),
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.black),
-        backgroundColor: Colors.white,
-        title: Text("명함 지갑",
-            style: TextStyle(
-              color: Colors.black,
-            ),
-            textAlign: TextAlign.center),
-        centerTitle: true,
-      ),
-      // StreamBuilder로 firebase값을 불러오는게 아니라 initstate안에 firestore 값을 다 불러온다.
-      body: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection("CardData")
-              .doc(User)
-              .collection("CardList")
-              .orderBy("createDate")
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                  child: CircularProgressIndicator(
-                strokeWidth: 10,
-              ));
-            } else if (snapshot.hasData) {
-              final snap = snapshot.data!.docs;
-              return ListView.builder(
-                  shrinkWrap: true,
-                  primary: false,
-                  itemCount: snap.length,
-                  itemBuilder: (context, index) {
-                    return Expanded(
-                      child: Container(
-                        width: media_querysize.width,
-                        height: media_querysize.height / 2 - 50,
-                        child: Wrap(
-                          children: [
-                            SizedBox(
-                              child: Column(children: [
-                                SizedBox(
-                                  width: media_querysize.width,
-                                  height: 250,
-                                  child: Image.network(
-                                    snap[index]["url"],
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  width: media_querysize.width,
-                                  height: 100,
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      SizedBox(
-                                          child: Expanded(
-                                              child: RichText(
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 5,
-                                        strutStyle: StrutStyle(fontSize: 16.0),
-                                        text: TextSpan(
-                                            text: "회사 이름 : " +
-                                                snap[index]["companyName"] +
-                                                "\n이름 : " +
-                                                snap[index]["name"] +
-                                                "\n핸드폰 번호 : " +
-                                                snap[index]["phoneNum"] +
-                                                "\n회사번호 번호 : " +
-                                                snap[index]["companyCallNum"],
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                height: 1.4,
-                                                fontSize: 15.0,
-                                                fontFamily:
-                                                    'NanumSquareRegular')),
-                                      ))),
-                                      SizedBox(
-                                          child: Expanded(
-                                        child: Column(
-                                          children: [
-                                            TextButton(
-                                                onPressed: () async {
-                                                  String getDocumentName =
-                                                      snap[index]["document"];
-                                                  await Navigator.of(context)
-                                                      .push(MaterialPageRoute<
-                                                          void>(
-                                                    builder: (BuildContext
-                                                            context) =>
-                                                        updateCard(
-                                                            filename:
-                                                                snap[index]
-                                                                    ["url"],
-                                                            documentName:
-                                                                getDocumentName,
-                                                            User: User),
-                                                  ));
-                                                  // FireStoreApp()
-                                                  //     .getUpdateCard(
-                                                  //         User,
-                                                  //         getDocumentName,
-                                                  //         context);
-                                                },
-                                                child: Text("수정 하기")),
-                                            TextButton(
-                                                onPressed: () async {
-                                                  String getDocumentName =
-                                                      snap[index]["document"];
-                                                  addDialog(
-                                                      context, "명함을 삭제하시겠습니까?");
-                                                  await deleteCard(User,getDocumentName);
-                                                },
-                                                child: Text("삭제 하기"))
-                                          ],
+        resizeToAvoidBottomInset: false,
+        drawer: _NavBar(User),
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: Colors.black),
+          backgroundColor: Colors.white,
+          title: Text("명함 지갑",
+              style: TextStyle(
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center),
+          centerTitle: true,
+        ),
+        // StreamBuilder로 firebase값을 불러오는게 아니라 initstate안에 firestore 값을 다 불러온다.
+        body: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection("CardData")
+                .doc(User)
+                .collection("CardList")
+                .orderBy("createDate")
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return _loading();
+              } else if (snapshot.hasData) {
+                final snap = snapshot.data!.docs;
+                if (snap.length == 0) {
+                  return Center(
+                    child: Text("등록된 명함이 없습니다. 명함을 등록해주세요. ",
+                        style: TextStyle(fontSize: 16)),
+                  );
+                }
+                return ListView.builder(
+                    shrinkWrap: true,
+                    primary: false,
+                    itemCount: snap.length,
+                    itemBuilder: (context, index) {
+                      return Expanded(
+                        child: Container(
+                            width: media_querysize.width,
+                            height: media_querysize.height / 2 - 50,
+                            child: Column(
+                              children: [
+                                Wrap(
+                                  children: [
+                                    SizedBox(
+                                      child: Column(children: [
+                                        SizedBox(
+                                          width: media_querysize.width,
+                                          height: 250,
+                                          child: Image.network(
+                                            snap[index]["url"],
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
-                                      )),
-                                    ],
-                                  ),
+                                        Container(
+                                          padding:
+                                              EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                          width: media_querysize.width,
+                                          height: 100,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              SizedBox(
+                                                child: Expanded(
+                                                  child: RichText(
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 5,
+                                                    strutStyle: StrutStyle(
+                                                        fontSize: 16.0),
+                                                    text: TextSpan(
+                                                        text: "회사 이름 : " +
+                                                            snap[index][
+                                                                "companyName"] +
+                                                            "\n이름 : " +
+                                                            snap[index]
+                                                                ["name"] +
+                                                            "\n핸드폰 번호 : " +
+                                                            snap[index]
+                                                                ["phoneNum"] +
+                                                            "\n회사번호 번호 : " +
+                                                            snap[index][
+                                                                "companyCallNum"],
+                                                        style: TextStyle(
+                                                            color: Colors.black,
+                                                            height: 1.4,
+                                                            fontSize: 15.0,
+                                                            fontFamily:
+                                                                'NanumSquareRegular')),
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                  child: Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          String
+                                                              getDocumentName =
+                                                              snap[index]
+                                                                  ["document"];
+                                                          await Navigator.of(
+                                                                  context)
+                                                              .push(
+                                                                  MaterialPageRoute<
+                                                                      void>(
+                                                            builder: (BuildContext
+                                                                    context) =>
+                                                                updateCard(
+                                                                    documentName:
+                                                                        getDocumentName,
+                                                                    User: User),
+                                                          ));
+                                                        },
+                                                        child: Text("수정")),
+                                                    TextButton(
+                                                        onPressed: () async {
+                                                          String
+                                                              getDocumentName =
+                                                              snap[index].id;
+                                                          isDeleteDialog(
+                                                              context,
+                                                              "명함을 삭제하시겠습니까?",
+                                                              User,
+                                                              snap[index]
+                                                                  ["document"]);
+                                                        },
+                                                        child: Text("삭제"))
+                                                  ],
+                                                ),
+                                              )),
+                                            ],
+                                          ),
+                                        ),
+                                      ]),
+                                    ),
+                                  ],
                                 ),
-                              ]),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  });
-            } else if (snapshot.hasError) {
-              return AlertDialog(
-                title: Text("에러"),
-                content: SingleChildScrollView(
-                  child: ListBody(
-                    children: <Widget>[
-                      Text('데이터를 불러오는데 오류가 발생했습니다. 다시 로그인 해주세요'),
-                    ],
+                              ],
+                            )),
+                      );
+                    });
+              } else if (snapshot.hasError) {
+                return AlertDialog(
+                  title: Text("에러"),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text('데이터를 불러오는데 오류가 발생했습니다. 다시 로그인 해주세요'),
+                      ],
+                    ),
                   ),
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('확인'),
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute<void>(
-                        builder: (BuildContext context) => signinPage(),
-                      ));
-                    },
-                  ),
-                ],
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('확인'),
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (BuildContext context) => signinPage(),
+                        ));
+                      },
+                    ),
+                  ],
+                );
+              } else {
+                return Center(child: Text("등록된 명함이 없습니다. 명함을 등록해주세요"));
+              }
+            }),
+        bottomNavigationBar: Container(
+          width: media_querysize.width,
+          child: ElevatedButton.icon(
+            icon: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            label: Text("명함 추가"),
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                    builder: (BuildContext context) => addCard(email: User)),
               );
-            } else {
-              return Center(child: Text("등록된 명함이 없습니다. 명함을 등록해주세요"));
-            }
-          }),
-      bottomNavigationBar: Container(
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          SizedBox(
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    primary: Color.fromARGB(255, 232, 232, 232),
-                    onPrimary: Colors.black),
-                child: Text("이미지"),
-                onPressed: () {
-                  checkImage = true;
-                  Navigator.of(context).push(MaterialPageRoute<void>(
-                    builder: (BuildContext context) => getTextPage(user: User),
-                  ));
-                }),
+            },
           ),
-          SizedBox(
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    primary: Color.fromARGB(255, 232, 232, 232),
-                    onPrimary: Colors.black),
-                child: Text("스캔"),
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute<void>(
-                    builder: (BuildContext context) => getTextPage(user: User),
-                  ));
-                }),
-          ),
-          SizedBox(
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    primary: Color.fromARGB(255, 232, 232, 232),
-                    onPrimary: Colors.black),
-                child: Text("수동 등록"),
-                onPressed: () async {
-                  runImagePiker(User);
-                  // await Navigator.of(context).push(MaterialPageRoute<void>(
-                  //   builder: (BuildContext context) => const addCard(),
-                  // ));
-                }),
-          ),
-        ]),
-      ),
-    );
+        ));
   }
 
   Widget _NavBar(String User) {
@@ -267,11 +234,9 @@ class mainPage_View extends State<mainPage> {
             accountEmail: Text('환영합니다'),
             currentAccountPicture: CircleAvatar(
               child: ClipOval(
-                child: Image.network(
-                  'https://oflutter.com/wp-content/uploads/2021/02/girl-profile.png',
-                  fit: BoxFit.cover,
-                  width: 90,
-                  height: 90,
+                child: Icon(
+                  Icons.account_circle,
+                  size: 70,
                 ),
               ),
             ),
@@ -285,27 +250,106 @@ class mainPage_View extends State<mainPage> {
           ),
           ListTile(
             title: Text('로그아웃'),
-            onTap: () => signOut(),
+            onTap: () async {
+              signOut().then((value) {}, onError: (e) {
+                errorDialog(context, "${e} 에러가 발생했습니다.");
+              });
+            },
           ),
           ListTile(
             title: Text('뒤로가기'),
-            onTap: () => popbeforePage(context),
+            onTap: () {
+              popbeforePage(context);
+            },
           ),
         ],
       ),
     );
   }
 }
-void addDialog(BuildContext context, String value) async {
-    return showDialog<void>(
+
+Widget addBusCard(BuildContext context, String User) {
+  return
+      // Container(
+      // color: Colors.grey,
+      // decoration: BoxDecoration( color:  Colors.grey ,borderRadius: BorderRadius.circular(15)),
+      CircleAvatar(
+    radius: 30,
+    backgroundColor: Colors.grey,
+    child: IconButton(
+      icon: Icon(
+        Icons.search,
+        color: Colors.white,
+      ),
+      onPressed: () {},
+    ),
+  );
+  // IconButton(
+  //     icon: Icon(Icons.add, color: Colors.white),
+  //     style: ElevatedButton.styleFrom(
+  //       backgroundColor: Colors.grey,
+  //         primary: Color.fromARGB(255, 232, 232, 232), onPrimary: Colors.white),
+  //     onPressed: () async {
+  //       //  runImagePiker(User);
+  //       await Navigator.of(context).push(MaterialPageRoute<void>(
+  //         builder: (BuildContext context) => addCard(email: User),
+  //       ));
+  //     }),
+  // );
+}
+
+void isDeleteDialog(
+    BuildContext context, String value, String User, String companyNume) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('${value}.'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('확인'),
+            onPressed: () async {
+              await deleteCard(User, companyNume).then((value) {
+                Navigator.of(context).pop();
+              }, onError: (e) {
+                errorDialog(context, "${e} 에러가 발생했습니다.");
+              });
+            },
+          ),
+          TextButton(
+            child: const Text('뒤로가기'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void popbeforePage(final context) {
+  Navigator.pop(context);
+}
+
+void errorDialog(BuildContext context, String value) async {
+  return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
+          title: Text("에러"),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('${value}.'),
+                Text('${value}'),
               ],
             ),
           ),
@@ -318,10 +362,12 @@ void addDialog(BuildContext context, String value) async {
             ),
           ],
         );
-      },
-    );
-  }
+      });
+}
 
-  void popbeforePage(final context) {
-    Navigator.pop(context);
-  }
+Widget _loading() {
+  return Center(
+      child: CircularProgressIndicator(
+    strokeWidth: 10,
+  ));
+}

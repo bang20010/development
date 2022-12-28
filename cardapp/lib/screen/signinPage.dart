@@ -77,22 +77,22 @@ class signinPage_View extends State<signinPage> {
                 SizedBox(
                   height: media_querysize.height / 30,
                 ),
-                SizedBox(
-                  width: media_querysize.width - 230,
-                  height: media_querysize.height / 28,
-                  child: SignInButton(
-                    Buttons.Google,
-                    text: "구글로 로그인 하기",
-                    onPressed: () async {
-                      setState(() {
-                        _isSigningIn = true;
-                      });
-                      setState(() {
-                        _isSigningIn = false;
-                      });
-                    },
-                  ),
-                ),
+                // SizedBox(
+                //   width: media_querysize.width - 230,
+                //   height: media_querysize.height / 28,
+                //   child: SignInButton(
+                //     Buttons.Google,
+                //     text: "구글로 로그인 하기",
+                //     onPressed: () async {
+                //       setState(() {
+                //         _isSigningIn = true;
+                //       });
+                //       setState(() {
+                //         _isSigningIn = false;
+                //       });
+                //     },
+                //   ),
+                // ),
                 SizedBox(
                   height: media_querysize.height / 30,
                 ),
@@ -108,29 +108,50 @@ class signinPage_View extends State<signinPage> {
                         ? () async {
                             String email = _editColEmail.text.trim();
                             String password = _editColPassword.text.trim();
-                            await signIn(email, password).then(
-                              (value) {
-                                value as Map;
-                                if (value["result"] == true) {
-
-                                  var userinfo = value["docid"] as UserCredential;
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (BuildContext context) =>
-                                          mainPage(
-                                        email: userinfo.credential!.providerId,
-                                      ),
-                                    ),
-                                  );
-                                } else if (value["result"] == false) {
-                                  String error = value["error"];
-                                  errorDialog(context, error);
-                                }
-                              },
-                            );
+                            await signIn(email, password).then((value) {
+                              Navigator.of(context)
+                                  .push(MaterialPageRoute<void>(
+                                builder: (BuildContext context) => mainPage(
+                                  email: email,
+                                ),
+                              ));
+                            }, onError: (e) {
+                              errorDialog(context, "로그인 시 에러가 발생했습니다.");
+                            });
                           }
                         : null,
                     label: Text('이메일로 로그인'),
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                SizedBox(
+                  width: media_querysize.width - 230,
+                  height: media_querysize.height / 28,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute<void>(
+                        builder: (BuildContext context) => const searchIdPage(),
+                      ));
+                    },
+                    child: Text('아이디 찾기'),
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                //아이디 찾은 후 이메일로 인증 받아서 확인
+                SizedBox(
+                  width: media_querysize.width - 230,
+                  height: media_querysize.height / 28,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.of(context).push(MaterialPageRoute<void>(
+                        builder: (BuildContext context) => const signupPage(),
+                      ));
+                    },
+                    child: Text('회원가입'),
                   ),
                 ),
               ],
@@ -142,27 +163,6 @@ class signinPage_View extends State<signinPage> {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           //회원가입 아이디, 비밀번호, 비밀번호 확인, 핸드폰 번호
           //핸드폰 번호로 아이디 찾기
-          SizedBox(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute<void>(
-                  builder: (BuildContext context) => const searchIdPage(),
-                ));
-              },
-              child: Text('아이디 찾기'),
-            ),
-          ),
-          //아이디 찾은 후 이메일로 인증 받아서 확인
-          SizedBox(
-            child: ElevatedButton(
-              onPressed: () async {
-                Navigator.of(context).push(MaterialPageRoute<void>(
-                  builder: (BuildContext context) => const signupPage(),
-                ));
-              },
-              child: Text('회원가입'),
-            ),
-          ),
         ]),
       ),
     );
@@ -297,7 +297,7 @@ void errorDialog(BuildContext context, String value) async {
       });
 }
 
-void signUpDialog(BuildContext context, String value, String email) async {
+void signInDialog(BuildContext context, String value, String email) async {
   return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

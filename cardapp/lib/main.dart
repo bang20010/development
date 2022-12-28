@@ -1,8 +1,7 @@
 import 'package:cardapp/screen/signinPage.dart';
 import 'package:flutter/material.dart';
-import 'package:cardapp/screen/mainPage.dart'; 
+import 'package:cardapp/screen/mainPage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
 // import 'package:shelf/shelf_io.dart' as shelf_io;
 

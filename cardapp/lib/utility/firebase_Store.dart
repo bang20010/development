@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart'; 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class FireStoreApp {
@@ -6,11 +6,12 @@ class FireStoreApp {
   final CollectionReference collection =
       FirebaseFirestore.instance.collection("CardData");
   final storageRef = FirebaseStorage.instance.ref();
-  
-  getCollection(){
-   return collection;
+
+  getCollection() {
+    return collection;
   }
-  getStorage(){
+
+  getStorage() {
     return storageRef;
   }
 }
